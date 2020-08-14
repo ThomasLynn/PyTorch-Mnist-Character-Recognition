@@ -2,17 +2,32 @@
 import torch
 import pygame
 import math
+from nnfs.datasets import spiral_data
 
 # N is batch size; D_in is input dimension;
 # H is hidden dimension; D_out is output dimension.
-N, D_in, H, D_out = 64, 1, 100, 1
+N, D_in, H, D_out = 64, 2, 100, 3
 
 # Create random Tensors to hold inputs and outputs
-#x = torch.randn(N, D_in)
-x = torch.arange(-1,1.05,0.1)
-x = x.reshape((len(x),1))
-#y = torch.randn(N, D_out)
-y = torch.sin(x*10)
+##x = torch.randn(N, D_in)
+x_data, y_data = spiral_data(100, 3)  
+x = torch.tensor(x_data, dtype=torch.float32)
+y_list = []
+for w in y_data:
+    out = [0.0]*3
+    out[w] = 1.0
+    y_list.append(out)
+y = torch.tensor(y_list,dtype = torch.float32)
+print(x,y) 
+x2_data = []
+for i in range(21):
+    for j in range(21):
+        x2_data.append([i/10.0 - 1, j/10.0 - 1])
+x2 = torch.tensor(x2_data)
+print(x2)
+#x = x.reshape((len(x),1))
+##y = torch.randn(N, D_out)
+#y = torch.sin(x*10)
 
 # Use the nn package to define our model and loss function.
 model = torch.nn.Sequential(
@@ -29,13 +44,25 @@ loss_fn = torch.nn.MSELoss(reduction='sum')
 learning_rate = 1e-4
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-screen = pygame.display.set_mode((300, 300))
+screen = pygame.display.set_mode((600, 300))
 pygame.init()
 clock = pygame.time.Clock()
 
 #for t in range(50000):
 t=0
 running = True
+
+def get_color(vals):
+    index = torch.argmax(vals)
+    if index == 0:
+        return (255,0,0)
+    elif index == 1:
+        return (0,255,0)
+    elif index == 2:
+        return (0,0,255)
+    return (100,100,100)
+        
+
 while running:
     # Forward pass: compute predicted y by passing x to the model.
     y_pred = model(x)
@@ -51,12 +78,15 @@ while running:
         
         screen.fill([255, 255, 255])
         for i in range(1,x.shape[0]):
-            pygame.draw.line(screen,(0,255,0),
-                (int(x[i-1][0]*125)+150,int(y[i-1][0]*125)+150),
-                (int(x[i][0]*125)+150,int(y[i][0]*125)+150),1)
-            pygame.draw.line(screen,(0,0,255),
-                (int(x[i-1][0]*125)+150,int(y_pred[i-1][0]*125)+150),
-                (int(x[i][0]*125)+150,int(y_pred[i][0]*125)+150),1)
+            pygame.draw.circle(screen,get_color(y[i]),
+                (int(x[i][0]*125)+150,int(x[i][1]*125)+150),1)
+            pygame.draw.circle(screen,get_color(y_pred[i]),
+                (int(x[i][0]*125)+450,int(x[i][1]*125)+150),1)
+            
+        y_pred2 = model(x2)
+        for i in range(len(y_pred2)):
+            pygame.draw.circle(screen,get_color(y_pred2[i]),
+                (int(x2[i][0]*125)+450,int(x2[i][1]*125)+150),1)
         pygame.display.update()
         clock.tick(30)
     # Before the backward pass, use the optimizer object to zero all of the
