@@ -7,8 +7,8 @@ from mlxtend.data import loadlocal_mnist
 #D_in is input dimension;
 # H is hidden dimension; D_out is output dimension.
 D_in = 28*28
-H = 100
-H2 = 100
+H = 16
+H2 = 16
 D_out = 10
 
 # Create random Tensors to hold inputs and outputs
@@ -39,9 +39,9 @@ test_y = torch.tensor(test_y_data_onehot, dtype=torch.float32)
 
 model = torch.nn.Sequential(
     torch.nn.Linear(D_in, H),
-    torch.nn.LeakyReLU(),
+    torch.nn.Sigmoid(),
     torch.nn.Linear(H, H2),
-    torch.nn.LeakyReLU(),
+    torch.nn.Sigmoid(),
     torch.nn.Linear(H2, D_out)
 )
 loss_fn = torch.nn.MSELoss(reduction='mean')
@@ -55,6 +55,9 @@ t=0
 while True:
     y_pred = model(x)
     loss = loss_fn(y_pred, y)
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
     if t % 20 == 19:
         print(t, loss.item())
         test_y_pred = model(test_x)
@@ -74,7 +77,4 @@ while True:
                 correct_amount += 1
         print("test accuracy:",(correct_amount*100.0)/(len(test_y_pred_argmax)),"%")
         
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
     t+=1
