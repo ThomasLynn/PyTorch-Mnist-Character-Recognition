@@ -4,12 +4,11 @@ import pygame
 import math
 from mlxtend.data import loadlocal_mnist
 
-# N is batch size; D_in is input dimension;
+#D_in is input dimension;
 # H is hidden dimension; D_out is output dimension.
-N = 64
 D_in = 28*28
-H = 800
-H2 = 10
+H = 100
+H2 = 100
 D_out = 10
 
 # Create random Tensors to hold inputs and outputs
@@ -40,14 +39,15 @@ test_y = torch.tensor(test_y_data_onehot, dtype=torch.float32)
 
 model = torch.nn.Sequential(
     torch.nn.Linear(D_in, H),
-    torch.nn.ReLU(),
+    torch.nn.LeakyReLU(),
     torch.nn.Linear(H, H2),
-    torch.nn.ReLU(),
+    torch.nn.LeakyReLU(),
     torch.nn.Linear(H2, D_out)
 )
 loss_fn = torch.nn.MSELoss(reduction='mean')
-
+#loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
 learning_rate = 1e-3
+#learning_rate = 0.5
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 t=0
@@ -61,8 +61,9 @@ while True:
         test_loss = loss_fn(test_y_pred,test_y)
         y_pred_argmax = y_pred.argmax(1)
         correct_amount = 0
+        
+        print(y_pred,"yeet",y_pred_argmax,"yote",y_data)
         for i in range(len(y_pred_argmax)):
-            #print(y_pred[i],"yeet",y_pred_argmax[i],"yote",y_data[i])
             if y_pred_argmax[i]==y_data[i]:
                 correct_amount += 1
         print("train accuracy:",(correct_amount*100.0)/(len(y_pred_argmax)),"%")
