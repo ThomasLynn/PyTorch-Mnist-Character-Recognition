@@ -6,11 +6,16 @@ from nnfs.datasets import spiral_data
 
 # N is batch size; D_in is input dimension;
 # H is hidden dimension; D_out is output dimension.
-N, D_in, H, D_out = 64, 2, 100, 3
+N = 64
+D_in = 2
+H = 300
+H2 = 300
+H3 = 300
+D_out = 3
 
 # Create random Tensors to hold inputs and outputs
 ##x = torch.randn(N, D_in)
-x_data, y_data = spiral_data(100, 3)  
+x_data, y_data = spiral_data(300, 3)  
 x = torch.tensor(x_data, dtype=torch.float32)
 y_list = []
 for w in y_data:
@@ -18,13 +23,11 @@ for w in y_data:
     out[w] = 1.0
     y_list.append(out)
 y = torch.tensor(y_list,dtype = torch.float32)
-print(x,y) 
 x2_data = []
-for i in range(21):
-    for j in range(21):
-        x2_data.append([i/10.0 - 1, j/10.0 - 1])
+for i in range(41):
+    for j in range(41):
+        x2_data.append([i/20.0 - 1, j/20.0 - 1])
 x2 = torch.tensor(x2_data)
-print(x2)
 #x = x.reshape((len(x),1))
 ##y = torch.randn(N, D_out)
 #y = torch.sin(x*10)
@@ -33,7 +36,11 @@ print(x2)
 model = torch.nn.Sequential(
     torch.nn.Linear(D_in, H),
     torch.nn.ReLU(),
-    torch.nn.Linear(H, D_out),
+    torch.nn.Linear(H, H2),
+    torch.nn.ReLU(),
+    torch.nn.Linear(H2, H3),
+    torch.nn.ReLU(),
+    torch.nn.Linear(H3, D_out),
 )
 loss_fn = torch.nn.MSELoss(reduction='sum')
 
@@ -41,7 +48,7 @@ loss_fn = torch.nn.MSELoss(reduction='sum')
 # the model for us. Here we will use Adam; the optim package contains many other
 # optimization algorithms. The first argument to the Adam constructor tells the
 # optimizer which Tensors it should update.
-learning_rate = 1e-4
+learning_rate = 1e-5
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 screen = pygame.display.set_mode((600, 300))
@@ -74,7 +81,7 @@ while running:
             if event.type == pygame.QUIT:
                 running = False
                 break
-        print(t, loss.item())
+        print(t, loss.item()/len(x))
         
         screen.fill([255, 255, 255])
         for i in range(1,x.shape[0]):
