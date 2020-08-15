@@ -52,7 +52,7 @@ if load_model!=None:
     model.eval()
 loss_fn = torch.nn.MSELoss(reduction='mean')
 #loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
-learning_rate = 1e-3
+learning_rate = 1e-5
 #learning_rate = 0.5
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
