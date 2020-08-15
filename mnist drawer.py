@@ -10,8 +10,8 @@ H = 300
 H2 = 40
 D_out = 10
 
-model = ConvNet_Big()
-model.load_state_dict(torch.load("mnist-big-classifier.model"))
+model = ConvNet_3()
+model.load_state_dict(torch.load("mnist-3-classifier.model"))
 model.eval()
 
 screen = pygame.display.set_mode((600, 300))

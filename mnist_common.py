@@ -1,37 +1,46 @@
 import torch
 
-class ConvNet_Small(torch.nn.Module):
+class Perceptron_1(torch.nn.Module):
     def __init__(self):
-        super(ConvNet_Small, self).__init__()
+        super(Perceptron_1, self).__init__()
+        self.fc1 = torch.nn.Linear(28 * 28, 300)
+        self.s1 = torch.nn.Sigmoid()
+        self.fc2 = torch.nn.Linear(300, 40)
+        self.s2 = torch.nn.Sigmoid()
+        self.fc3 = torch.nn.Linear(40, 10)
+        
+    def forward(self, x):
+        out = self.fc1(out)
+        out = self.s1(out)
+        out = self.fc2(out)
+        out = self.s2(out)
+        out = self.fc2(out)
+        return out
+
+class ConvNet_1(torch.nn.Module):
+    def __init__(self):
+        super(ConvNet_1, self).__init__()
         self.layer1 = torch.nn.Sequential(
             torch.nn.Conv2d(1, 10, kernel_size=3, stride=1, padding=1),
-            #torch.nn.ReLU(),
             torch.nn.Sigmoid(),
             torch.nn.MaxPool2d(kernel_size=4, stride=4))
-        #self.layer2 = torch.nn.Sequential(
-        #    torch.nn.Conv2d(5, 10, kernel_size=5, stride=1, padding=2),
-        #    torch.nn.ReLU(),
-        #    torch.nn.MaxPool2d(kernel_size=2, stride=2))
-        #self.drop_out = torch.nn.Dropout()
         self.fc1 = torch.nn.Linear(7 * 7 * 10, 100)
-        #self.fc1 = torch.nn.Linear(14 * 14 * 10, 100)
+        self.s1 = torch.nn.Sigmoid()
         self.fc2 = torch.nn.Linear(100, 10)
         
     def forward(self, x):
         out = self.layer1(x)
-        #out = self.layer2(out)
         out = out.reshape(out.size(0), -1)
-        #out = self.drop_out(out)
         out = self.fc1(out)
+        out = self.s1(out)
         out = self.fc2(out)
         return out
         
-class ConvNet_Medium(torch.nn.Module):
+class ConvNet_2(torch.nn.Module):
     def __init__(self):
-        super(ConvNet_Medium, self).__init__()
+        super(ConvNet_2, self).__init__()
         self.layer1 = torch.nn.Sequential(
             torch.nn.Conv2d(1, 10, kernel_size=3, stride=1, padding=1),
-            #torch.nn.ReLU(),
             torch.nn.Sigmoid(),
             torch.nn.MaxPool2d(kernel_size=2, stride=2))
         self.layer2 = torch.nn.Sequential(
@@ -40,33 +49,34 @@ class ConvNet_Medium(torch.nn.Module):
             torch.nn.MaxPool2d(kernel_size=2, stride=2))
         self.drop_out = torch.nn.Dropout()
         self.fc1 = torch.nn.Linear(7 * 7 * 10, 100)
-        #self.fc1 = torch.nn.Linear(14 * 14 * 10, 100)
+        self.s1 = torch.nn.Sigmoid()
         self.fc2 = torch.nn.Linear(100, 10)
         
     def forward(self, x):
         out = self.layer1(x)
         out = self.layer2(out)
         out = out.reshape(out.size(0), -1)
-        #out = self.drop_out(out)
         out = self.fc1(out)
+        out = self.s1(out)
         out = self.fc2(out)
         return out
         
-class ConvNet_Big(torch.nn.Module):
+class ConvNet_3(torch.nn.Module):
     def __init__(self):
-        super(ConvNet_Big, self).__init__()
+        super(ConvNet_3, self).__init__()
         self.layer1 = torch.nn.Sequential(
             torch.nn.Conv2d(1, 20, kernel_size=3, stride=1, padding=1),
-            torch.nn.ReLU(),
+            torch.nn.LeakyReLU(),
             torch.nn.MaxPool2d(kernel_size=2, stride=2))
         self.layer2 = torch.nn.Sequential(
             torch.nn.Conv2d(20, 30, kernel_size=5, stride=1, padding=2),
-            torch.nn.ReLU(),
+            torch.nn.LeakyReLU(),
             torch.nn.MaxPool2d(kernel_size=2, stride=2))
         self.drop_out = torch.nn.Dropout()
         self.fc1 = torch.nn.Linear(7 * 7 * 30, 1000)
-        #self.fc1 = torch.nn.Linear(14 * 14 * 10, 100)
+        self.s1 = torch.nn.Sigmoid()
         self.fc2 = torch.nn.Linear(1000, 100)
+        self.s2 = torch.nn.Sigmoid()
         self.fc3 = torch.nn.Linear(100, 10)
         
     def forward(self, x):
@@ -75,6 +85,8 @@ class ConvNet_Big(torch.nn.Module):
         out = out.reshape(out.size(0), -1)
         out = self.drop_out(out)
         out = self.fc1(out)
+        out = self.s1(out)
         out = self.fc2(out)
+        out = self.s2(out)
         out = self.fc3(out)
         return out

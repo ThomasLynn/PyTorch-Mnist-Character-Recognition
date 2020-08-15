@@ -8,11 +8,11 @@ import time
 batch_size = 10000
 learning_rate = 1e-3
 
-save_model = "mnist-big-classifier.model"
+save_model = "mnist-3-classifier.model"
 #load_model = save_model
 load_model = None
 
-model = ConvNet_Big()
+model = ConvNet_3()
 
 x_data, y_data = loadlocal_mnist(
     images_path='train-images.idx3-ubyte', 
@@ -76,7 +76,7 @@ while True:
                 if test_y_pred_argmax[i]==test_y_data[i]:
                     test_correct_amount += 1
             print_testing_acc = (test_correct_amount*100.0)/len(test_y_pred_argmax)
-            print(correct_amount,len(test_y_pred_argmax))
+            #print(correct_amount,len(test_y_pred_argmax))
             print("epoch:",t,"loss: {:.5f}".format(print_loss),
                 "train acc: {:.2f}%".format(print_training_acc),
                 "testing acc: {:.2f}%".format(print_testing_acc))
