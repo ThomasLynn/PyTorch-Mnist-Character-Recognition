@@ -8,11 +8,11 @@ import time
 batch_size = 10000
 learning_rate = 1e-3
 
-save_model = "mnist-3-classifier.model"
+save_model = "mnist-4-classifier.model"
 load_model = save_model
 #load_model = None
 
-model = ConvNet_3()
+model = ConvNet_4()
 
 x_data, y_data = loadlocal_mnist(
     images_path='train-images.idx3-ubyte', 
