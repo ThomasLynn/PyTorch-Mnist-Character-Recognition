@@ -1,5 +1,6 @@
 import pygame
 import torch
+from mnist_common import *
 
 pygame.font.init()
 FONT = pygame.font.SysFont('Comic Sans MS', 14)
@@ -9,14 +10,8 @@ H = 300
 H2 = 40
 D_out = 10
 
-model = torch.nn.Sequential(
-    torch.nn.Linear(D_in, H),
-    torch.nn.Sigmoid(),
-    torch.nn.Linear(H, H2),
-    torch.nn.Sigmoid(),
-    torch.nn.Linear(H2, D_out)
-)
-model.load_state_dict(torch.load("mnist-300-40-classifier.model"))
+model = ConvNet()
+model.load_state_dict(torch.load("mnist-conv10-40-classifier.model"))
 model.eval()
 
 screen = pygame.display.set_mode((600, 300))
@@ -41,7 +36,7 @@ def draw_to_image(set_to,prev_pos,pos):
             image[int(y/scale)+1][int(x/scale)] += set_to/10
             image[int(y/scale)-1][int(x/scale)] += set_to/10
             image[int(y/scale)][int(x/scale)] = set_to
-    guesses[:] = model(image.reshape(28*28))
+    guesses[:] = model(image.reshape(1,1,28,28))
         
 
 running = True
