@@ -8,9 +8,11 @@ import time
 batch_size = 10000
 learning_rate = 1e-3
 
-save_model = "mnist-conv10-40-classifier.model"
+save_model = "mnist-big-classifier.model"
 #load_model = save_model
 load_model = None
+
+model = ConvNet_Big()
 
 x_data, y_data = loadlocal_mnist(
     images_path='train-images.idx3-ubyte', 
@@ -27,7 +29,6 @@ test_x = test_x.reshape(test_x.shape[0],1,28,28)
 test_y = torch.tensor(test_y_data, dtype=torch.int64)
 
 
-model = ConvNet()
 
 print("network created")
 if load_model!=None:

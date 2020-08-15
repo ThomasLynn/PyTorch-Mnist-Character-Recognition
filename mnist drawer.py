@@ -10,8 +10,8 @@ H = 300
 H2 = 40
 D_out = 10
 
-model = ConvNet()
-model.load_state_dict(torch.load("mnist-conv10-40-classifier.model"))
+model = ConvNet_Big()
+model.load_state_dict(torch.load("mnist-big-classifier.model"))
 model.eval()
 
 screen = pygame.display.set_mode((600, 300))
@@ -31,10 +31,18 @@ def draw_to_image(set_to,prev_pos,pos):
         y = (pos[0]-prev_pos[0])* lerp + prev_pos[0]
         x = (pos[1]-prev_pos[1])* lerp + prev_pos[1]
         if x/scale < 28 and x>=0 and y/scale <28 and y>=0:
-            image[int(y/scale)][int(x/scale)+1] += set_to/10
-            image[int(y/scale)][int(x/scale)-1] += set_to/10
-            image[int(y/scale)+1][int(x/scale)] += set_to/10
-            image[int(y/scale)-1][int(x/scale)] += set_to/10
+            if x/scale+1<28:
+                if image[int(y/scale)][int(x/scale)+1]<set_to/2:
+                    image[int(y/scale)][int(x/scale)+1] = set_to/2
+            if x-1 >=0:
+                if image[int(y/scale)][int(x/scale)-1]<set_to/2:
+                    image[int(y/scale)][int(x/scale)-1] = set_to/2
+            if y/scale+1<28:
+                if image[int(y/scale)+1][int(x/scale)]<set_to/2:
+                    image[int(y/scale)+1][int(x/scale)] = set_to/2
+            if y-1 >=0:
+                if image[int(y/scale)-1][int(x/scale)]<set_to/2:
+                    image[int(y/scale)-1][int(x/scale)] = set_to/2
             image[int(y/scale)][int(x/scale)] = set_to
     guesses[:] = model(image.reshape(1,1,28,28))
         
