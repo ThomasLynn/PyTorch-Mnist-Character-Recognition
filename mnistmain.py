@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 import torch
-import pygame
 import math
 from mlxtend.data import loadlocal_mnist
 
 #D_in is input dimension;
 # H is hidden dimension; D_out is output dimension.
 D_in = 28*28
-H = 16
-H2 = 16
+H = 300
+H2 = 40
 D_out = 10
+
+load_model = "mnist-300-40-classifier.model"
+save_model = "mnist-300-40-classifier.model"
 
 # Create random Tensors to hold inputs and outputs
 ##x = torch.randn(N, D_in)
@@ -37,6 +39,7 @@ for i in range(len(test_y_data)):
 test_y = torch.tensor(test_y_data_onehot, dtype=torch.float32)
 #print("test",test_x,test_y)
 
+
 model = torch.nn.Sequential(
     torch.nn.Linear(D_in, H),
     torch.nn.Sigmoid(),
@@ -44,6 +47,9 @@ model = torch.nn.Sequential(
     torch.nn.Sigmoid(),
     torch.nn.Linear(H2, D_out)
 )
+if load_model!=None:
+    model.load_state_dict(torch.load(load_model))
+    model.eval()
 loss_fn = torch.nn.MSELoss(reduction='mean')
 #loss_fn = torch.nn.CrossEntropyLoss(reduction='mean')
 learning_rate = 1e-3
@@ -58,23 +64,29 @@ while True:
     optimizer.zero_grad()
     loss.backward()
     optimizer.step()
-    if t % 20 == 19:
-        print(t, loss.item())
+    if t % 5 == 0:
+        
+        print_loss = loss.item()
         test_y_pred = model(test_x)
         test_loss = loss_fn(test_y_pred,test_y)
         y_pred_argmax = y_pred.argmax(1)
         correct_amount = 0
         
-        print(y_pred,"yeet",y_pred_argmax,"yote",y_data)
+        #print(y_pred,"yeet",y_pred_argmax,"yote",y_data)
         for i in range(len(y_pred_argmax)):
             if y_pred_argmax[i]==y_data[i]:
                 correct_amount += 1
-        print("train accuracy:",(correct_amount*100.0)/(len(y_pred_argmax)),"%")
+        print_training_acc = (correct_amount*100.0)/len(y_pred_argmax)
         test_y_pred_argmax = test_y_pred.argmax(1)
         correct_amount = 0
         for i in range(len(test_y_pred_argmax)):
             if test_y_pred_argmax[i]==test_y_data[i]:
                 correct_amount += 1
-        print("test accuracy:",(correct_amount*100.0)/(len(test_y_pred_argmax)),"%")
+        print_testing_acc = (correct_amount*100.0)/len(test_y_pred_argmax)
+        print("epoch:",t,"loss: {:.5f}".format(print_loss),
+            "train acc: {:.2f}%".format(print_training_acc),
+            "testing acc: {:.2f}%".format(print_testing_acc))
+        if save_model!=None:
+            torch.save(model.state_dict(), save_model)
         
     t+=1
