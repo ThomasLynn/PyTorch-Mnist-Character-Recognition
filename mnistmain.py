@@ -9,8 +9,8 @@ batch_size = 10000
 learning_rate = 1e-3
 
 save_model = "mnist-3-classifier.model"
-#load_model = save_model
-load_model = None
+load_model = save_model
+#load_model = None
 
 model = ConvNet_3()
 
@@ -35,6 +35,7 @@ if load_model!=None:
     try:
         model.load_state_dict(torch.load(load_model))
         model.eval()
+        print("loaded model from file")
     except:
         print("failed to load model. using new model")
 loss_fn = torch.nn.CrossEntropyLoss()
