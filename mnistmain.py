@@ -37,8 +37,11 @@ model = torch.nn.Sequential(
 )
 print("loaded")
 if load_model!=None:
-    model.load_state_dict(torch.load(load_model))
-    model.eval()
+    try:
+        model.load_state_dict(torch.load(load_model))
+        model.eval()
+    except:
+        print("failed to load model. using new model")
 loss_fn = torch.nn.CrossEntropyLoss()
 learning_rate = 1e-3
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
