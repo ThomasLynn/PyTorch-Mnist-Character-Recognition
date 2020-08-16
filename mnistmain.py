@@ -6,6 +6,7 @@ from mnist_common import *
 import time
 from image_distorter import image_distorter
 from matplotlib import pyplot as plt
+import os
 
 batch_size = 10000
 learning_rate = 1e-3
@@ -14,7 +15,17 @@ save_model = "mnist-5-classifier.model"
 load_model = save_model
 #load_model = None
 
-model = ConvNet_5()
+loaded = False
+if load_model!=None:
+    try:
+        model = torch.load(load_model)
+        model.eval()
+        loaded = True
+    except:
+        print("failed to load model")
+if not loaded:
+    model = ConvNet_5()
+
 
 x_data, y_data = loadlocal_mnist(
     images_path='train-images.idx3-ubyte', 
@@ -32,14 +43,14 @@ test_y = torch.tensor(test_y_data, dtype=torch.int64)
 
 
 
-print("network created")
-if load_model!=None:
-    try:
-        model.load_state_dict(torch.load(load_model))
-        model.eval()
-        print("loaded model from file")
-    except:
-        print("failed to load model. using new model")
+#print("network created")
+#if load_model!=None:
+#    try:
+#        model.load_state_dict(torch.load(load_model))
+#        model.eval()
+#        print("loaded model from file")
+#    except:
+#        print("failed to load model. using new model")
 loss_fn = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -49,7 +60,7 @@ while True:
     correct_amount = 0
     for i in range(int(x.shape[0]/batch_size)):
         #print(i)
-        images = image_distorter(x[batch_size*i:batch_size*(i+1)],30,5,0.03,10)
+        images = image_distorter(x[batch_size*i:batch_size*(i+1)],30,5,10)
         #for j in range(3):
         #    pixels = images[j][0].reshape((28, 28))
         #    plt.imshow(pixels*255, cmap='gray')
@@ -89,6 +100,8 @@ while True:
                 "train acc: {:.2f}%".format(print_training_acc),
                 "testing acc: {:.2f}%".format(print_testing_acc))
             if save_model!=None:
-                torch.save(model.state_dict(), save_model)
+                #torch.save(model.state_dict(), save_model)
+                os.remove(save_model)
+                torch.save(model, save_model)
         
     t+=1

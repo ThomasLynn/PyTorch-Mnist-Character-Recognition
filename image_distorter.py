@@ -3,7 +3,7 @@ import random
 import numpy as np
 from scipy import ndimage
 
-def image_distorter(images, r_rotation, r_translation, r_s_noise, r_l_noise):
+def image_distorter(images, r_rotation, r_translation, r_l_noise):
     new_images = (images.clone()).numpy()
     
     new_images = ndimage.rotate(new_images, -r_rotation+random.random()*2*r_rotation, axes = (3,2), reshape=False, order = 1)
@@ -12,12 +12,6 @@ def image_distorter(images, r_rotation, r_translation, r_s_noise, r_l_noise):
     y_delta = random.randint(-r_translation,r_translation)
     
     new_images = ndimage.shift(new_images,[0,0,y_delta,x_delta],order = 0)
-    
-    small_noise = np.random.rand(images.shape[0],images.shape[1],images.shape[2],images.shape[3])
-    
-    #print(new_images[0][0][10],small_noise[0][0][10])
-    new_images += small_noise*r_s_noise
-    #print(new_images[0][0][10])
     
     l_noise = np.zeros((new_images.shape[0],new_images.shape[1],new_images.shape[2],new_images.shape[3]))
     for j in range(l_noise.shape[0]):
