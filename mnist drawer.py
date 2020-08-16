@@ -17,12 +17,13 @@ clock = pygame.time.Clock()
 
 guesses = torch.zeros(10)
 image = torch.zeros((28,28))
+
 scale = 10
 
 def draw_pixel(image,x,y,set_to):
     if x < 28 and x>=0 and y <28 and y>=0:
-        if set_to == 0 or image[int(y)][int(x)]<set_to:
-            image[int(y)][int(x)] = set_to
+        if set_to == 0 or image[int(x)][int(y)]<set_to:
+            image[int(x)][int(y)] = set_to
 
 def draw_to_image(set_to,prev_pos,pos):
     #y = pos[0]
@@ -93,7 +94,7 @@ while running:
     #print(image)
     for i in range(image.shape[0]):
         for j in range(image.shape[1]):
-            val = min(255,max(0,image[i][j]*255.0))
+            val = min(255,max(0,image[j][i]*255.0))
             pygame.draw.rect(screen,(val,val,val),
                 (i*scale,j*scale,scale,scale))
     for i in range(guesses.shape[0]):
