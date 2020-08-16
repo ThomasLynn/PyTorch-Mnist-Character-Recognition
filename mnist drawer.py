@@ -49,20 +49,6 @@ def draw_to_image(set_to,prev_pos,pos):
         draw_pixel(image,x/scale,y/scale+2,set_to/3)
         draw_pixel(image,x/scale+2,y/scale,set_to/3)
         draw_pixel(image,x/scale-2,y/scale,set_to/3)
-        #if x/scale < 28 and x>=0 and y/scale <28 and y>=0:
-        #    if x/scale+1<28:
-        #        if image[int(y/scale)][int(x/scale)+1]<set_to/2:
-        #            image[int(y/scale)][int(x/scale)+1] = set_to/2
-        #    if x/scale-1 >=0:
-        #        if image[int(y/scale)][int(x/scale)-1]<set_to/2:
-        #            image[int(y/scale)][int(x/scale)-1] = set_to/2
-        #    if y/scale+1<28:
-        #        if image[int(y/scale)+1][int(x/scale)]<set_to/2:
-        #            image[int(y/scale)+1][int(x/scale)] = set_to/2
-        #    if y/scale-1 >=0:
-        #        if image[int(y/scale)-1][int(x/scale)]<set_to/2:
-        #            image[int(y/scale)-1][int(x/scale)] = set_to/2
-        #    image[int(y/scale)][int(x/scale)] = set_to
     guesses[:] = model(image.reshape(1,1,28,28))
         
 

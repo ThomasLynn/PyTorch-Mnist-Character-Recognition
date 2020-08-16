@@ -19,7 +19,7 @@ loaded = False
 if load_model!=None:
     try:
         model = torch.load(load_model)
-        model.eval()
+        model.train()
         loaded = True
     except:
         print("failed to load model")
@@ -58,6 +58,7 @@ t=0
 while True:
     #timer = time.time()
     correct_amount = 0
+    model.train()
     for i in range(int(x.shape[0]/batch_size)):
         #print(i)
         images = image_distorter(x[batch_size*i:batch_size*(i+1)],30,5,10)
@@ -84,9 +85,10 @@ while True:
     #print("time taken:",time.time()-timer)
     if t % 1 == 0:
         with torch.set_grad_enabled(False):
+            model.eval()
             print_loss = loss.item()
             test_y_pred = model(test_x)
-            test_loss = loss_fn(test_y_pred,test_y)
+            #test_loss = loss_fn(test_y_pred,test_y)
             print_training_acc = (correct_amount*100.0)/len(y)
             #print(correct_amount,len(y))
             test_y_pred_argmax = test_y_pred.argmax(1)
@@ -99,9 +101,9 @@ while True:
             print("epoch:",t,"loss: {:.5f}".format(print_loss),
                 "train acc: {:.2f}%".format(print_training_acc),
                 "testing acc: {:.2f}%".format(print_testing_acc))
-            if save_model!=None:
-                #torch.save(model.state_dict(), save_model)
-                os.remove(save_model)
-                torch.save(model, save_model)
+        if save_model!=None:
+            #torch.save(model.state_dict(), save_model)
+            os.remove(save_model)
+            torch.save(model, save_model)
         
     t+=1
