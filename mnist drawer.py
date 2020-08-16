@@ -5,8 +5,10 @@ from mnist_common import *
 pygame.font.init()
 FONT = pygame.font.SysFont('Comic Sans MS', 16)
 
-model = ConvNet_5()
-model.load_state_dict(torch.load("mnist-5-classifier.model"))
+#model = ConvNet_5()
+#model.load_state_dict(torch.load("mnist-5-classifier.model"))
+#model.eval()
+model = torch.load("mnist-5-classifier.model")
 model.eval()
 
 screen = pygame.display.set_mode((600, 300))
@@ -17,6 +19,11 @@ guesses = torch.zeros(10)
 image = torch.zeros((28,28))
 scale = 10
 
+def draw_pixel(image,x,y,set_to):
+    if x < 28 and x>=0 and y <28 and y>=0:
+        if set_to == 0 or image[int(y)][int(x)]<set_to:
+            image[int(y)][int(x)] = set_to
+
 def draw_to_image(set_to,prev_pos,pos):
     #y = pos[0]
     #x = pos[1]
@@ -25,20 +32,36 @@ def draw_to_image(set_to,prev_pos,pos):
         lerp = i/(dist + 1.0)
         y = (pos[0]-prev_pos[0])* lerp + prev_pos[0]
         x = (pos[1]-prev_pos[1])* lerp + prev_pos[1]
-        if x/scale < 28 and x>=0 and y/scale <28 and y>=0:
-            if x/scale+1<28:
-                if image[int(y/scale)][int(x/scale)+1]<set_to/2:
-                    image[int(y/scale)][int(x/scale)+1] = set_to/2
-            if x/scale-1 >=0:
-                if image[int(y/scale)][int(x/scale)-1]<set_to/2:
-                    image[int(y/scale)][int(x/scale)-1] = set_to/2
-            if y/scale+1<28:
-                if image[int(y/scale)+1][int(x/scale)]<set_to/2:
-                    image[int(y/scale)+1][int(x/scale)] = set_to/2
-            if y/scale-1 >=0:
-                if image[int(y/scale)-1][int(x/scale)]<set_to/2:
-                    image[int(y/scale)-1][int(x/scale)] = set_to/2
-            image[int(y/scale)][int(x/scale)] = set_to
+        draw_pixel(image,x/scale,y/scale,set_to)
+        
+        draw_pixel(image,x/scale,y/scale-1,set_to/2)
+        draw_pixel(image,x/scale,y/scale+1,set_to/2)
+        draw_pixel(image,x/scale+1,y/scale,set_to/2)
+        draw_pixel(image,x/scale-1,y/scale,set_to/2)
+        
+        draw_pixel(image,x/scale-1,y/scale-1,set_to/3)
+        draw_pixel(image,x/scale-1,y/scale+1,set_to/3)
+        draw_pixel(image,x/scale+1,y/scale-1,set_to/3)
+        draw_pixel(image,x/scale+1,y/scale+1,set_to/3)
+        
+        draw_pixel(image,x/scale,y/scale-2,set_to/3)
+        draw_pixel(image,x/scale,y/scale+2,set_to/3)
+        draw_pixel(image,x/scale+2,y/scale,set_to/3)
+        draw_pixel(image,x/scale-2,y/scale,set_to/3)
+        #if x/scale < 28 and x>=0 and y/scale <28 and y>=0:
+        #    if x/scale+1<28:
+        #        if image[int(y/scale)][int(x/scale)+1]<set_to/2:
+        #            image[int(y/scale)][int(x/scale)+1] = set_to/2
+        #    if x/scale-1 >=0:
+        #        if image[int(y/scale)][int(x/scale)-1]<set_to/2:
+        #            image[int(y/scale)][int(x/scale)-1] = set_to/2
+        #    if y/scale+1<28:
+        #        if image[int(y/scale)+1][int(x/scale)]<set_to/2:
+        #            image[int(y/scale)+1][int(x/scale)] = set_to/2
+        #    if y/scale-1 >=0:
+        #        if image[int(y/scale)-1][int(x/scale)]<set_to/2:
+        #            image[int(y/scale)-1][int(x/scale)] = set_to/2
+        #    image[int(y/scale)][int(x/scale)] = set_to
     guesses[:] = model(image.reshape(1,1,28,28))
         
 
