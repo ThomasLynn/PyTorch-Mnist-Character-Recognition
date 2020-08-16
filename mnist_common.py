@@ -121,6 +121,7 @@ class ConvNet_4(torch.nn.Module):
         self.fc2 = torch.nn.Linear(1000, 100)
         self.s2 = torch.nn.LeakyReLU()
         self.fc3 = torch.nn.Linear(100, 10)
+        self.sm = torch.nn.Softmax(1)
         
     def forward(self, x):
         out = self.layer1(x)
@@ -134,4 +135,5 @@ class ConvNet_4(torch.nn.Module):
         out = self.fc2(out)
         out = self.s2(out)
         out = self.fc3(out)
+        out = self.sm(out)
         return out
