@@ -19,14 +19,14 @@ model = ConvNet_4()
 x_data, y_data = loadlocal_mnist(
     images_path='train-images.idx3-ubyte', 
     labels_path='train-labels.idx1-ubyte')
-x = torch.tensor(x_data, dtype=torch.float32)
+x = torch.tensor(x_data, dtype=torch.float32)/255.0
 x = x.reshape(x.shape[0],1,28,28)
 y = torch.tensor(y_data,dtype = torch.int64)
 
 test_x_data, test_y_data = loadlocal_mnist(
     images_path='t10k-images.idx3-ubyte', 
     labels_path='t10k-labels.idx1-ubyte')
-test_x = torch.tensor(test_x_data, dtype=torch.float32)
+test_x = torch.tensor(test_x_data, dtype=torch.float32)/255.0
 test_x = test_x.reshape(test_x.shape[0],1,28,28)
 test_y = torch.tensor(test_y_data, dtype=torch.int64)
 
@@ -49,10 +49,10 @@ while True:
     correct_amount = 0
     for i in range(int(x.shape[0]/batch_size)):
         #print(i)
-        images = image_distorter(x[batch_size*i:batch_size*(i+1)],5,0,0,0,0)
+        images = image_distorter(x[batch_size*i:batch_size*(i+1)],30,5,0.1,10)
         #for j in range(3):
         #    pixels = images[j][0].reshape((28, 28))
-        #    plt.imshow(pixels, cmap='gray')
+        #    plt.imshow(pixels*255, cmap='gray')
         #    plt.show()
         y_pred = model(images)
         loss = loss_fn(y_pred, y[batch_size*i:batch_size*(i+1)])

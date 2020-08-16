@@ -1,30 +1,32 @@
 import torch
 import random
 import numpy as np
+from scipy import ndimage
 
-def roll_zeropad(a_in, shift, axis):
-    if shift == 0: return a_in
-    a = a_in.numpy()
-    n = a.shape[axis]
-    if np.abs(shift) > n:
-        res = np.zeros_like(a)
-    elif shift < 0:
-        shift += n
-        zeros = np.zeros_like(a.take(np.arange(n-shift), axis))
-        res = np.concatenate((a.take(np.arange(n-shift,n), axis), zeros), axis)
-    else:
-        zeros = np.zeros_like(a.take(np.arange(n-shift,n), axis))
-        res = np.concatenate((zeros, a.take(np.arange(n-shift), axis)), axis)
-    return torch.from_numpy(res)
+def image_distorter(images, r_rotation, r_translation, r_s_noise, r_l_noise):
+    new_images = (images.clone()).numpy()
+    
+    new_images = ndimage.rotate(new_images, -r_rotation+random.random()*2*r_rotation, axes = (3,2), reshape=False, order = 1)
+    
+    x_delta = random.randint(-r_translation,r_translation)
+    y_delta = random.randint(-r_translation,r_translation)
+    
+    new_images = ndimage.shift(new_images,[0,0,y_delta,x_delta],order = 0)
+    
+    small_noise = np.random.rand(images.shape[0],images.shape[1],images.shape[2],images.shape[3])
+    
+    #print(new_images[0][0][10],small_noise[0][0][10])
+    new_images += small_noise*r_s_noise
+    #print(new_images[0][0][10])
+    
+    l_noise = np.zeros((new_images.shape[0],new_images.shape[1],new_images.shape[2],new_images.shape[3]))
+    for j in range(l_noise.shape[0]):
+        for i in range(r_l_noise):
+            l_noise[j][0][random.randint(0,l_noise.shape[2]-1)]\
+                [random.randint(0,l_noise.shape[3]-1)] = random.random()
 
-
-def image_distorter(images, r_scale, r_rotation, r_translation, r_s_noise, r_l_noise):
-    new_images = images.clone()
+    new_images+=l_noise
     
-    x_delta = random.randint(-r_scale,r_scale)
-    y_delta = random.randint(-r_scale,r_scale)
+    new_images = np.clip(new_images,0,1)
     
-    new_images = roll_zeropad(new_images,x_delta,3)
-    new_images = roll_zeropad(new_images,y_delta,2)
-    
-    return new_images
+    return torch.from_numpy(new_images)
