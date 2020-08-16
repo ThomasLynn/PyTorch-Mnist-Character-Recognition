@@ -10,11 +10,11 @@ from matplotlib import pyplot as plt
 batch_size = 10000
 learning_rate = 1e-3
 
-save_model = "mnist-4-classifier.model"
+save_model = "mnist-5-classifier.model"
 load_model = save_model
 #load_model = None
 
-model = ConvNet_4()
+model = ConvNet_5()
 
 x_data, y_data = loadlocal_mnist(
     images_path='train-images.idx3-ubyte', 
@@ -49,7 +49,7 @@ while True:
     correct_amount = 0
     for i in range(int(x.shape[0]/batch_size)):
         #print(i)
-        images = image_distorter(x[batch_size*i:batch_size*(i+1)],30,5,0.1,10)
+        images = image_distorter(x[batch_size*i:batch_size*(i+1)],30,5,0.03,10)
         #for j in range(3):
         #    pixels = images[j][0].reshape((28, 28))
         #    plt.imshow(pixels*255, cmap='gray')
