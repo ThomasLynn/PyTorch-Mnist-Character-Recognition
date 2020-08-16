@@ -3,7 +3,7 @@ import torch
 from mnist_common import *
 
 pygame.font.init()
-FONT = pygame.font.SysFont('Comic Sans MS', 14)
+FONT = pygame.font.SysFont('Comic Sans MS', 16)
 
 model = ConvNet_5()
 model.load_state_dict(torch.load("mnist-5-classifier.model"))
@@ -29,13 +29,13 @@ def draw_to_image(set_to,prev_pos,pos):
             if x/scale+1<28:
                 if image[int(y/scale)][int(x/scale)+1]<set_to/2:
                     image[int(y/scale)][int(x/scale)+1] = set_to/2
-            if x-1 >=0:
+            if x/scale-1 >=0:
                 if image[int(y/scale)][int(x/scale)-1]<set_to/2:
                     image[int(y/scale)][int(x/scale)-1] = set_to/2
             if y/scale+1<28:
                 if image[int(y/scale)+1][int(x/scale)]<set_to/2:
                     image[int(y/scale)+1][int(x/scale)] = set_to/2
-            if y-1 >=0:
+            if y/scale-1 >=0:
                 if image[int(y/scale)-1][int(x/scale)]<set_to/2:
                     image[int(y/scale)-1][int(x/scale)] = set_to/2
             image[int(y/scale)][int(x/scale)] = set_to
@@ -74,11 +74,11 @@ while running:
             pygame.draw.rect(screen,(val,val,val),
                 (i*scale,j*scale,scale,scale))
     for i in range(guesses.shape[0]):
-        text_surface = FONT.render(str(i)+': {:.5f}'.format(guesses[i]), False, (0, 0, 0))
-        screen.blit(text_surface,((300,10+i*16)))
+        text_surface = FONT.render(str(i)+': {:.1f}%'.format(guesses[i]*100), False, (0, 0, 0))
+        screen.blit(text_surface,((300,30+i*18)))
             
     text_surface = FONT.render("guess: "+str(int(torch.argmax(guesses))), False, (0, 0, 0))
-    screen.blit(text_surface,((400,10)))
+    screen.blit(text_surface,((300,10)))
     
     pygame.display.update()
     clock.tick(30)
