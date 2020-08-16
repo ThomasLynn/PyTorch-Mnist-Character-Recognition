@@ -115,11 +115,11 @@ class ConvNet_4(torch.nn.Module):
             torch.nn.Conv2d(25, 40, kernel_size=5, stride=1, padding=2),
             torch.nn.LeakyReLU(),
             torch.nn.MaxPool2d(kernel_size=2, stride=2))
-        self.drop_out = torch.nn.Dropout()
+        #self.drop_out = torch.nn.Dropout()
         self.fc1 = torch.nn.Linear(2 * 2 * 40, 1000)
-        self.s1 = torch.nn.Sigmoid()
+        self.s1 = torch.nn.LeakyReLU()
         self.fc2 = torch.nn.Linear(1000, 100)
-        self.s2 = torch.nn.Sigmoid()
+        self.s2 = torch.nn.LeakyReLU()
         self.fc3 = torch.nn.Linear(100, 10)
         
     def forward(self, x):
@@ -128,7 +128,7 @@ class ConvNet_4(torch.nn.Module):
         out = self.layer3(out)
         out = self.layer4(out)
         out = out.reshape(out.size(0), -1)
-        out = self.drop_out(out)
+        #out = self.drop_out(out)
         out = self.fc1(out)
         out = self.s1(out)
         out = self.fc2(out)

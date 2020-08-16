@@ -4,6 +4,8 @@ import math
 from mlxtend.data import loadlocal_mnist
 from mnist_common import *
 import time
+from image_distorter import image_distorter
+from matplotlib import pyplot as plt
 
 batch_size = 10000
 learning_rate = 1e-3
@@ -47,7 +49,12 @@ while True:
     correct_amount = 0
     for i in range(int(x.shape[0]/batch_size)):
         #print(i)
-        y_pred = model(x[batch_size*i:batch_size*(i+1)])
+        images = image_distorter(x[batch_size*i:batch_size*(i+1)],5,0,0,0,0)
+        #for j in range(3):
+        #    pixels = images[j][0].reshape((28, 28))
+        #    plt.imshow(pixels, cmap='gray')
+        #    plt.show()
+        y_pred = model(images)
         loss = loss_fn(y_pred, y[batch_size*i:batch_size*(i+1)])
         #print(y_pred,loss)
         optimizer.zero_grad()
