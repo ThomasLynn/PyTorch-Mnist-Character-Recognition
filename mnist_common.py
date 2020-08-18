@@ -200,9 +200,9 @@ class ConvNet_6(torch.nn.Module):
             torch.nn.LeakyReLU(),
             torch.nn.MaxPool2d(kernel_size=4, stride=2, padding = 1))
         self.drop_out = torch.nn.Dropout()
-        self.fc1 = torch.nn.Linear(2 * 2 * 45, 100)
+        self.fc1 = torch.nn.Linear(2 * 2 * 45, 400)
         self.s1 = torch.nn.LeakyReLU()
-        self.fc2 = torch.nn.Linear(100, 60)
+        self.fc2 = torch.nn.Linear(400, 60)
         self.s2 = torch.nn.LeakyReLU()
         self.fc3 = torch.nn.Linear(60, 10)
         self.sm = torch.nn.Softmax(1)
