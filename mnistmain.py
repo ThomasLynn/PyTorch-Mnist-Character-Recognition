@@ -103,7 +103,10 @@ while True:
                 "testing acc: {:.2f}%".format(print_testing_acc))
         if save_model!=None:
             #torch.save(model.state_dict(), save_model)
-            os.remove(save_model)
+            try:
+                os.remove(save_model)
+            except:
+                print("no model to delete")
             torch.save(model, save_model)
         
     t+=1
