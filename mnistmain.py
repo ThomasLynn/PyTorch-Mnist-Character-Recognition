@@ -55,8 +55,40 @@ loss_fn = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 t=0
+loss = None
 while True:
     #timer = time.time()
+    if t % 1 == 0:
+        with torch.set_grad_enabled(False):
+            model.eval()
+            if loss != None:
+                print_loss = loss.item()
+                print_training_acc = (correct_amount*100.0)/len(y)
+                
+            test_y_pred = model(test_x)
+            #test_loss = loss_fn(test_y_pred,test_y)
+            #print(correct_amount,len(y))
+            test_y_pred_argmax = test_y_pred.argmax(1)
+            test_correct_amount = 0
+            for i in range(len(test_y_pred_argmax)):
+                if test_y_pred_argmax[i]==test_y_data[i]:
+                    test_correct_amount += 1
+            print_testing_acc = (test_correct_amount*100.0)/len(test_y_pred_argmax)
+            #print(correct_amount,len(test_y_pred_argmax))
+            if loss == None:
+                print("testing acc: {:.2f}%".format(print_testing_acc))
+            else:
+                print("epoch:",t,"loss: {:.5f}".format(print_loss),
+                    "train acc: {:.2f}%".format(print_training_acc),
+                    "testing acc: {:.2f}%".format(print_testing_acc))
+        if save_model!=None:
+            #torch.save(model.state_dict(), save_model)
+            try:
+                os.remove(save_model)
+            except:
+                print("no model to delete")
+            torch.save(model, save_model)
+    
     correct_amount = 0
     model.train()
     for i in range(int(x.shape[0]/batch_size)):
@@ -68,7 +100,6 @@ while True:
         #    plt.show()
         y_pred = model(images)
         loss = loss_fn(y_pred, y[batch_size*i:batch_size*(i+1)])
-        #print(y_pred,loss)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -76,37 +107,6 @@ while True:
         for i in range(len(y_pred_argmax)):
             if y_pred_argmax[i]==y_data[i]:
                 correct_amount += 1
-    #y_pred = model(x)
-    #loss = loss_fn(y_pred, y)
-    ##print(y_pred,loss)
-    #optimizer.zero_grad()
-    #loss.backward()
-    #optimizer.step()
-    #print("time taken:",time.time()-timer)
-    if t % 1 == 0:
-        with torch.set_grad_enabled(False):
-            model.eval()
-            print_loss = loss.item()
-            test_y_pred = model(test_x)
-            #test_loss = loss_fn(test_y_pred,test_y)
-            print_training_acc = (correct_amount*100.0)/len(y)
-            #print(correct_amount,len(y))
-            test_y_pred_argmax = test_y_pred.argmax(1)
-            test_correct_amount = 0
-            for i in range(len(test_y_pred_argmax)):
-                if test_y_pred_argmax[i]==test_y_data[i]:
-                    test_correct_amount += 1
-            print_testing_acc = (test_correct_amount*100.0)/len(test_y_pred_argmax)
-            #print(correct_amount,len(test_y_pred_argmax))
-            print("epoch:",t,"loss: {:.5f}".format(print_loss),
-                "train acc: {:.2f}%".format(print_training_acc),
-                "testing acc: {:.2f}%".format(print_testing_acc))
-        if save_model!=None:
-            #torch.save(model.state_dict(), save_model)
-            try:
-                os.remove(save_model)
-            except:
-                print("no model to delete")
-            torch.save(model, save_model)
+    
         
     t+=1
