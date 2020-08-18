@@ -11,7 +11,7 @@ import os
 batch_size = 10000
 learning_rate = 1e-3
 
-save_model = "mnist-5-classifier.model"
+save_model = "mnist-6-classifier.model"
 load_model = save_model
 #load_model = None
 
@@ -24,7 +24,7 @@ if load_model!=None:
     except:
         print("failed to load model")
 if not loaded:
-    model = ConvNet_5()
+    model = ConvNet_6()
 
 
 x_data, y_data = loadlocal_mnist(
