@@ -15,17 +15,14 @@ save_model = "mnist-6-classifier.model"
 load_model = save_model
 #load_model = None
 
-loaded = False
+model = ConvNet_6()
+print("network created")
 if load_model!=None:
     try:
-        model = torch.load(load_model)
-        model.train()
-        loaded = True
+        model.load_state_dict(torch.load(load_model))
+        print("loaded model from file")
     except:
-        print("failed to load model")
-if not loaded:
-    model = ConvNet_6()
-
+        print("failed to load model. using new model")
 
 x_data, y_data = loadlocal_mnist(
     images_path='train-images.idx3-ubyte', 
@@ -43,14 +40,6 @@ test_y = torch.tensor(test_y_data, dtype=torch.int64)
 
 
 
-#print("network created")
-#if load_model!=None:
-#    try:
-#        model.load_state_dict(torch.load(load_model))
-#        model.eval()
-#        print("loaded model from file")
-#    except:
-#        print("failed to load model. using new model")
 loss_fn = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -76,7 +65,7 @@ while True:
             print_testing_acc = (test_correct_amount*100.0)/len(test_y_pred_argmax)
             #print(correct_amount,len(test_y_pred_argmax))
             if loss == None:
-                print("testing acc: {:.2f}%".format(print_testing_acc))
+                print("epoch:",t,"testing acc: {:.2f}%".format(print_testing_acc))
             else:
                 print("epoch:",t,"loss: {:.5f}".format(print_loss),
                     "train acc: {:.2f}%".format(print_training_acc),

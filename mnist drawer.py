@@ -5,10 +5,8 @@ from mnist_common import *
 pygame.font.init()
 FONT = pygame.font.SysFont('Comic Sans MS', 16)
 
-#model = ConvNet_5()
-#model.load_state_dict(torch.load("mnist-5-classifier.model"))
-#model.eval()
-model = torch.load("mnist-6-classifier.model")
+model = ConvNet_6()
+model.load_state_dict(torch.load("mnist-6-classifier.model"))
 model.eval()
 
 screen = pygame.display.set_mode((600, 300))
