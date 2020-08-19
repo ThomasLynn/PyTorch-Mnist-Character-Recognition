@@ -71,12 +71,13 @@ while True:
                     "train acc: {:.2f}%".format(print_training_acc),
                     "testing acc: {:.2f}%".format(print_testing_acc))
         if save_model!=None:
-            #torch.save(model.state_dict(), save_model)
+            
             try:
                 os.remove(save_model)
             except:
                 print("no model to delete")
-            torch.save(model, save_model)
+            torch.save(model.state_dict(), save_model)
+			#torch.save(model, save_model)
     
     correct_amount = 0
     model.train()
