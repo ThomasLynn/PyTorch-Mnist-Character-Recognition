@@ -1,12 +1,23 @@
 import pygame
 import torch
 from mnist_common import *
+import time
 
 pygame.font.init()
 FONT = pygame.font.SysFont('Comic Sans MS', 16)
 
+if torch.cuda.is_available():  
+  device_id = "cuda:0" 
+else:  
+  device_id = "cpu" 
+#device_id = "cpu"  
+print("device id:",device_id)
+
+device = torch.device(device_id)
+
 model = ConvNet_6()
 model.load_state_dict(torch.load("mnist-6-classifier.model"))
+model.to(device)
 model.eval()
 
 screen = pygame.display.set_mode((600, 300))
@@ -47,7 +58,10 @@ def draw_to_image(set_to,prev_pos,pos):
         draw_pixel(image,x/scale,y/scale+2,set_to/3)
         draw_pixel(image,x/scale+2,y/scale,set_to/3)
         draw_pixel(image,x/scale-2,y/scale,set_to/3)
-    guesses[:] = model(image.reshape(1,1,28,28))
+    timer = time.time()
+    guesses[:] = model(image.reshape(1,1,28,28).to(device))
+    #guesses[:] = model(image.reshape(1,1,28,28))
+    print("time taken:",time.time()-timer)
         
 
 running = True

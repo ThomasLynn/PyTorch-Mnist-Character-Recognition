@@ -4,7 +4,7 @@ import numpy as np
 from scipy import ndimage
 
 def image_distorter(images, r_rotation, r_translation, r_l_noise):
-    new_images = (images.clone()).numpy()
+    new_images = images.copy()
     
     for i in range(new_images.shape[0]):
         new_images[i][0] = ndimage.rotate(new_images[i][0], -r_rotation+random.random()*2*r_rotation, axes = (1,0), reshape=False, order = 1)
