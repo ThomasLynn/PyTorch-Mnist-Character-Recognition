@@ -10,7 +10,7 @@ if torch.cuda.is_available():
   device_id = "cuda:0" 
 else:  
   device_id = "cpu" 
-#device_id = "cpu"  
+device_id = "cpu"  
 print("device id:",device_id)
 
 device = torch.device(device_id)
@@ -58,10 +58,8 @@ def draw_to_image(set_to,prev_pos,pos):
         draw_pixel(image,x/scale,y/scale+2,set_to/3)
         draw_pixel(image,x/scale+2,y/scale,set_to/3)
         draw_pixel(image,x/scale-2,y/scale,set_to/3)
-    timer = time.time()
     guesses[:] = model(image.reshape(1,1,28,28).to(device))
     #guesses[:] = model(image.reshape(1,1,28,28))
-    print("time taken:",time.time()-timer)
         
 
 running = True
