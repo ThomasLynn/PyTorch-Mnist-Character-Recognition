@@ -37,8 +37,8 @@ class Mnist_Dataset(torch.utils.data.Dataset):
         return len(self.image_files)*60_000
 
     def __getitem__(self, index):
-        if index%1000==0:
-            print("index = ",index)
+        #if index%10000==0:
+        #    print("index = ",index)
         'Generates one sample of data'
         # Select sample
         set_id = int(index / 60_000)

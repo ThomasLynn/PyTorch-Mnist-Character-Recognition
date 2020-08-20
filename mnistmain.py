@@ -42,7 +42,7 @@ model.to(device)
 #x = x.reshape(x.shape[0],1,28,28).to(device)
 #y = torch.tensor(y_data,dtype = torch.int64).to(device)
 training_set = Mnist_Dataset("dataset/train_images", "dataset/train_labels")
-training_generator = torch.utils.data.DataLoader(training_set)
+training_generator = torch.utils.data.DataLoader(training_set, batch_size = 10000)
 #x = torch.from_numpy(np.load("dataset/training_images"))
 #y = torch.from_numpy(np.load("dataset/training_labels"))
 
@@ -69,7 +69,7 @@ while True:
             model.eval()
             if loss != None:
                 print_loss = loss.item()
-                print_training_acc = (correct_amount*100.0)/len(y)
+                print_training_acc = (correct_amount*100.0)/len(training_set)
                 
             test_y_pred = model(test_x)
             test_y_pred_argmax = test_y_pred.argmax(1)
