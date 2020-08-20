@@ -26,7 +26,7 @@ except:
 x = x_data
 for i in range(50):
 	try:
-		to_add = image_distorter(x_data,30,5,10)
+		to_add = image_distorter(x_data,30,5,15)
 		np.save("dataset/train_images_dist"+str(i+starting_number),to_add)
 		print("adding",to_add.shape,i+starting_number)
 	except:

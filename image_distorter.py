@@ -16,7 +16,7 @@ def image_distorter(images, r_rotation, r_translation, r_l_noise):
     
     l_noise = np.zeros((new_images.shape[0],new_images.shape[1],new_images.shape[2],new_images.shape[3]))
     for j in range(l_noise.shape[0]):
-        for i in range(r_l_noise):
+        for i in range(random.randint(0,r_l_noise)):
             l_noise[j][0][random.randint(0,l_noise.shape[2]-1)]\
                 [random.randint(0,l_noise.shape[3]-1)] = random.random()*2-1
 
