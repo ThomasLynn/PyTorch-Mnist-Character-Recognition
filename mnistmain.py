@@ -34,10 +34,11 @@ if load_model!=None:
         
 model.to(device)
 
-x_data, y_data = loadlocal_mnist(
-    images_path='train-images.idx3-ubyte', 
-    labels_path='train-labels.idx1-ubyte')
-x = torch.tensor(x_data, dtype=torch.float32)/255.0
+#x_data, y_data = loadlocal_mnist(
+#    images_path='train-images.idx3-ubyte', 
+#    labels_path='train-labels.idx1-ubyte')
+#x = torch.tensor(x_data, dtype=torch.float32)/255.0
+x_data = np.load("training_
 x = x.reshape(x.shape[0],1,28,28).to(device)
 y = torch.tensor(y_data,dtype = torch.int64).to(device)
 

@@ -6,3 +6,4 @@ train-labels.idx1-ubyte
 *.model
 *.pyc
 *.lnk
+*.npy
