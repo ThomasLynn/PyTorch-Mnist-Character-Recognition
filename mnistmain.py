@@ -6,6 +6,7 @@ from mnist_common import *
 from image_distorter import image_distorter
 from matplotlib import pyplot as plt
 import os
+from mnist_dataset import Mnist_Dataset
 
 batch_size = 4000
 learning_rate = 1e-3
@@ -38,9 +39,12 @@ model.to(device)
 #    images_path='train-images.idx3-ubyte', 
 #    labels_path='train-labels.idx1-ubyte')
 #x = torch.tensor(x_data, dtype=torch.float32)/255.0
-x_data = np.load("training_
-x = x.reshape(x.shape[0],1,28,28).to(device)
-y = torch.tensor(y_data,dtype = torch.int64).to(device)
+#x = x.reshape(x.shape[0],1,28,28).to(device)
+#y = torch.tensor(y_data,dtype = torch.int64).to(device)
+training_set = Mnist_Dataset("dataset/train_images", "dataset/train_labels")
+training_generator = torch.utils.data.DataLoader(training_set)
+#x = torch.from_numpy(np.load("dataset/training_images"))
+#y = torch.from_numpy(np.load("dataset/training_labels"))
 
 test_x_data, test_y_data = loadlocal_mnist(
     images_path='t10k-images.idx3-ubyte', 
@@ -58,6 +62,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 t=0
 loss = None
 while True:
+    print("looping:",t)
     #timer = time.time()
     if t % 10 == 0:
         with torch.set_grad_enabled(False):
@@ -86,7 +91,9 @@ while True:
     
     correct_amount = 0
     model.train()
-    for i in range(int(x.shape[0]/batch_size)):
+    print("i range",len(training_set)/batch_size)
+    #for i in range(int(len(training_set)/batch_size)):
+    for local_batch, local_labels in training_generator:
         #print(i)
         
         #images = image_distorter(x[batch_size*i:batch_size*(i+1)],30,5,10)
@@ -97,13 +104,14 @@ while True:
         #    plt.show()
         #y_pred = model(images)
         #y_pred = model(x)
-        y_pred = model(x[batch_size*i:batch_size*(i+1)])
-        loss = loss_fn(y_pred, y[batch_size*i:batch_size*(i+1)])
+        local_batch, local_labels = local_batch.to(device), local_labels.to(device)
+        y_pred = model(local_batch)
+        loss = loss_fn(y_pred, local_labels)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
         y_pred_argmax = y_pred.argmax(1)
-        correct_amount += (y_pred_argmax.eq(y[i*batch_size:(i+1)*batch_size])).sum()
+        correct_amount += (y_pred_argmax.eq(local_labels)).sum()
     
         
     t+=1
