@@ -41,8 +41,8 @@ model.to(device)
 #x = torch.tensor(x_data, dtype=torch.float32)/255.0
 #x = x.reshape(x.shape[0],1,28,28).to(device)
 #y = torch.tensor(y_data,dtype = torch.int64).to(device)
-training_set = Mnist_Dataset("dataset/train_images", "dataset/train_labels")
-training_generator = torch.utils.data.DataLoader(training_set, batch_size = 10000)
+training_set = Mnist_Dataset("dataset/train_images", "dataset/train_labels",10_005)
+#training_generator = torch.utils.data.DataLoader(training_set, batch_size = 10000)
 #x = torch.from_numpy(np.load("dataset/training_images"))
 #y = torch.from_numpy(np.load("dataset/training_labels"))
 
@@ -64,7 +64,7 @@ loss = None
 while True:
     print("looping:",t)
     #timer = time.time()
-    if t % 10 == 0:
+    if t % 1 == 0:
         with torch.set_grad_enabled(False):
             model.eval()
             if loss != None:
@@ -93,9 +93,11 @@ while True:
     model.train()
     print("i range",len(training_set)/batch_size)
     #for i in range(int(len(training_set)/batch_size)):
-    for local_batch, local_labels in training_generator:
+    #loop = 0
+    for local_batch, local_labels in training_set:
         #print(i)
-        
+        #print("loop",loop)
+        #loop+=1
         #images = image_distorter(x[batch_size*i:batch_size*(i+1)],30,5,10)
         
         #for j in range(3):
@@ -104,7 +106,7 @@ while True:
         #    plt.show()
         #y_pred = model(images)
         #y_pred = model(x)
-        local_batch, local_labels = local_batch.to(device), local_labels.to(device)
+        local_batch, local_labels = torch.tensor(local_batch).to(device), torch.tensor(local_labels).to(device)
         y_pred = model(local_batch)
         loss = loss_fn(y_pred, local_labels)
         optimizer.zero_grad()

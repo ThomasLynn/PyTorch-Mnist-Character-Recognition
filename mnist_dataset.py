@@ -2,17 +2,11 @@ import numpy as np
 import torch
 import os
 
-class Mnist_Dataset(torch.utils.data.Dataset):
-    """Face Landmarks dataset."""
+class Mnist_Dataset():
 
-    def __init__(self, images_base, labels_name):
-        """
-        Args:
-            csv_file (string): Path to the csv file with annotations.
-            root_dir (string): Directory with all the images.
-            transform (callable, optional): Optional transform to be applied
-                on a sample.
-        """
+    def __init__(self, images_base, labels_name, batch_size):
+        self.index = 0
+        self.batch_size = batch_size
         self.labels = torch.from_numpy(np.load(labels_name+".npy"))
         self.image_files = []
         try:
@@ -22,7 +16,7 @@ class Mnist_Dataset(torch.utils.data.Dataset):
             print("couldn't load base images file")
         counter = 0
         while True:
-            print("adding path")
+            #print("adding path")
             counter+=1
             file_name = images_base+"_dist"+str(counter)+".npy"
             if os.path.isfile(file_name):
@@ -30,26 +24,55 @@ class Mnist_Dataset(torch.utils.data.Dataset):
             else:
                 break
         self.loaded_image_set_id = 0
-        print("loading:",self.image_files[self.loaded_image_set_id])
+        #print("loading:",self.image_files[self.loaded_image_set_id])
         self.loaded_image_set = np.load(self.image_files[self.loaded_image_set_id])
 
     def __len__(self):
         return len(self.image_files)*60_000
+        
+    def __iter__(self):
+        return self
 
-    def __getitem__(self, index):
-        #if index%10000==0:
-        #    print("index = ",index)
-        'Generates one sample of data'
+    def __next__(self):
+        #if self.index%1_000==0:
+        #    print("index = ",self.index,self.__len__())
+        # Generates one sample of data
         # Select sample
-        set_id = int(index / 60_000)
+        if self.index >= self.__len__():
+            self.index -= self.__len__()
+            raise StopIteration
+        
+        set_id = int(self.index / 60_000)
         if set_id != self.loaded_image_set_id:
-            print("changing file")
+            #print("changing file")
             self.loaded_image_set_id = set_id
             self.loaded_image_set = np.load(self.image_files[self.loaded_image_set_id])
             
-        individual_id = index % 60_000
-        # Load data and get label
-        X = self.loaded_image_set[individual_id]
-        y = self.labels[individual_id]
-
-        return X, y
+        start_id = self.index % 60_000
+        stop_id = start_id + self.batch_size
+        
+        Xs = self.loaded_image_set[start_id:min(stop_id,len(self.loaded_image_set))]
+        if stop_id>60_000:
+            start_id2=0
+            stop_id2=stop_id - 60_000
+            #print("stop_id2:",stop_id2)
+            self.loaded_image_set_id += 1
+            try:
+                self.loaded_image_set = np.load(self.image_files[self.loaded_image_set_id%len(self.image_files)])
+                #print("before overload:",len(Xs))
+                Xs = np.concatenate([Xs, self.loaded_image_set[start_id2:stop_id2]])
+                #print("overload:",len(Xs))
+            except:
+                print("can't load next data")
+                
+            #print("len:",start_id,stop_id)
+            ys = self.labels[start_id:min(stop_id,len(self.loaded_image_set))]
+            ys = np.concatenate([ys, self.labels[:stop_id2]])
+        else:
+            #print("len2:",start_id,stop_id)
+            ys = self.labels[start_id:stop_id]
+        
+        #print("ys:",len(ys),start_id,stop_id)
+        
+        self.index += self.batch_size
+        return Xs, ys
