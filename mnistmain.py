@@ -9,7 +9,9 @@ import os
 from mnist_dataset import Mnist_Dataset
 
 batch_size = 1_000
-learning_rate = 1e-5
+eval_interval = 1_000
+learning_rate = 1e-3
+optim_size = 10
 
 save_model = "mnist-7-classifier.model"
 #load_model = save_model
@@ -49,48 +51,55 @@ test_y = torch.tensor(test_y_data, dtype=torch.int64).to(device)
 
 loss_fn = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+optimizer.zero_grad()
 
-def eval_network():
-    with torch.set_grad_enabled(False):
-        model.eval()
-        if loss != None:
-            print_loss = loss.item()
-            print_training_acc = (correct_amount*100.0)/len(training_set)
-            
-        test_y_pred = model(test_x)
-        test_y_pred_argmax = test_y_pred.argmax(1)
-        test_correct_amount = (test_y_pred_argmax.eq(test_y)).sum()
-        print_testing_acc = (test_correct_amount*100.0)/len(test_y_pred_argmax)
-        if loss == None:
-            print("epoch:",t,"testing acc: {:.2f}%".format(print_testing_acc))
-        else:
-            print("epoch:",t,"loss: {:.5f}".format(print_loss),
-                "train acc: {:.2f}%".format(print_training_acc),
-                "testing acc: {:.2f}%".format(print_testing_acc))
-    if save_model!=None:
-        try:
-            os.remove(save_model)
-        except:
-            print("no model to delete")
-        torch.save(model.state_dict(), save_model)
 
+correct_amount = 0
 t=0
 loss = None
+
+batch_number = 0
+
+optim_counter = 0
+
 while True:
-    correct_amount = 0
     model.train()
-    batch_number = 0
     for local_batch, local_labels in training_set:
+        if batch_number%eval_interval==0:
+                with torch.set_grad_enabled(False):
+                    model.eval()
+                    if loss != None:
+                        print_loss = loss.item()
+                        print_training_acc = (correct_amount*100.0)/(eval_interval*batch_size)
+                        correct_amount = 0
+                        
+                    test_y_pred = model(test_x)
+                    test_y_pred_argmax = test_y_pred.argmax(1)
+                    test_correct_amount = (test_y_pred_argmax.eq(test_y)).sum()
+                    print_testing_acc = (test_correct_amount*100.0)/len(test_y_pred_argmax)
+                    if loss == None:
+                        print("epoch:",t,"testing acc: {:.2f}%".format(print_testing_acc))
+                    else:
+                        print("epoch:",t,"loss: {:.5f}".format(print_loss),
+                            "train acc: {:.2f}%".format(print_training_acc),
+                            "testing acc: {:.2f}%".format(print_testing_acc))
+                if save_model!=None:
+                    try:
+                        os.remove(save_model)
+                    except:
+                        print("no model to delete")
+                    torch.save(model.state_dict(), save_model)
         local_batch, local_labels = torch.tensor(local_batch).to(device), torch.tensor(local_labels).to(device)
         y_pred = model(local_batch)
         loss = loss_fn(y_pred, local_labels)
-        optimizer.zero_grad()
         loss.backward()
-        optimizer.step()
+        optim_counter += 1
+        if optim_counter >= optim_size:
+            optimizer.step()
+            optimizer.zero_grad()
+            optim_counter = 0
         y_pred_argmax = y_pred.argmax(1)
         correct_amount += (y_pred_argmax.eq(local_labels)).sum()
-        if batch_number%100==0:
-            eval_network()
         batch_number+=1
     
         
