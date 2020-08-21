@@ -11,11 +11,11 @@ from mnist_dataset import Mnist_Dataset
 batch_size = 1_000
 eval_interval = 1_000
 learning_rate = 1e-3
-optim_size = 10
+optim_size = 50
 
 save_model = "mnist-7-classifier.model"
-#load_model = save_model
-load_model = None
+load_model = save_model
+#load_model = None
 
 if torch.cuda.is_available():  
   device_id = "cuda:0" 
