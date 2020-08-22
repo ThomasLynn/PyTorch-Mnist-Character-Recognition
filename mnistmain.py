@@ -63,7 +63,6 @@ batch_number = 0
 optim_counter = 0
 
 while True:
-    model.train()
     for local_batch, local_labels in training_set:
         if batch_number%eval_interval==0:
                 with torch.set_grad_enabled(False):
@@ -89,6 +88,8 @@ while True:
                     except:
                         print("no model to delete")
                     torch.save(model.state_dict(), save_model)
+                    
+        model.train()
         local_batch, local_labels = torch.tensor(local_batch).to(device), torch.tensor(local_labels).to(device)
         y_pred = model(local_batch)
         loss = loss_fn(y_pred, local_labels)
