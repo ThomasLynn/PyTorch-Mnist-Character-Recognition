@@ -7,7 +7,7 @@ from mnist_common import *
 from matplotlib import pyplot as plt
 import os
 
-batch_size = 300
+batch_size = 500
 learning_rate = 1e-4
 
 save_model = "mnist-8-classifier.model"
@@ -34,11 +34,15 @@ if load_model!=None:
         
 model.to(device)
 
-transform = torchvision.transforms.Compose([
+"""transform = torchvision.transforms.Compose([
     torchvision.transforms.RandomRotation(20,expand = True),
     torchvision.transforms.RandomResizedCrop(28,scale = (0.7,1.3)),
 #    torchvision.transforms.RandomGrayscale(),
     torchvision.transforms.ColorJitter(brightness = 0.05),
+    torchvision.transforms.ToTensor()
+])"""
+transform = torchvision.transforms.Compose([
+    torchvision.transforms.RandomAffine(25,(0.2,0.2),(0.5,1.4)),
     torchvision.transforms.ToTensor()
 ])
 training_dataset = torchvision.datasets.MNIST("dataset/mnist_dataset", train=True, transform=transform, download=True)

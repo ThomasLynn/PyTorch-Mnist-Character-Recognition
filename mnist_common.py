@@ -267,39 +267,58 @@ class ConvNet_8(torch.nn.Module):
     def __init__(self):
         super(ConvNet_8, self).__init__()
         self.layer1 = torch.nn.Sequential(
-            torch.nn.Conv2d(1, 80, kernel_size=3, stride=1, padding=1),
+            torch.nn.Conv2d(1, 450, kernel_size=3, stride=1, padding=1),
             torch.nn.LeakyReLU(),
             torch.nn.MaxPool2d(kernel_size=2, stride=2))
         self.layer2 = torch.nn.Sequential(
-            torch.nn.Conv2d(80, 100, kernel_size=3, stride=1, padding=1),
+            torch.nn.Conv2d(450, 600, kernel_size=3, stride=1, padding=1),
             torch.nn.LeakyReLU(),
             torch.nn.MaxPool2d(kernel_size=2, stride=2, padding = 1))
         self.layer3 = torch.nn.Sequential(
-            torch.nn.Conv2d(100, 120, kernel_size=3, stride=1, padding=1),
+            torch.nn.Conv2d(600, 1000, kernel_size=3, stride=1, padding=1),
             torch.nn.LeakyReLU(),
             torch.nn.MaxPool2d(kernel_size=2, stride=2))
         self.layer4 = torch.nn.Sequential(
-            torch.nn.Conv2d(120, 150, kernel_size=3, stride=1, padding=1),
+            torch.nn.Conv2d(1000, 1000, kernel_size=3, stride=1, padding=1),
             torch.nn.LeakyReLU())
+        self.layer5 = torch.nn.Sequential(
+            torch.nn.Conv2d(1000, 1000, kernel_size=3, stride=1, padding=1),
+            torch.nn.LeakyReLU())
+        self.layer6 = torch.nn.Sequential(
+            torch.nn.Conv2d(1000, 1000, kernel_size=3, stride=1, padding=1),
+            torch.nn.LeakyReLU())
+        self.layer7 = torch.nn.Sequential(
+            torch.nn.Conv2d(1000, 1000, kernel_size=3, stride=1, padding=1),
+            torch.nn.LeakyReLU())
+        self.layer8 = torch.nn.Sequential(
+            torch.nn.Conv2d(1000, 1000, kernel_size=3, stride=1, padding=1),
+            torch.nn.LeakyReLU())
+        self.layer9 = torch.nn.Sequential(
+            torch.nn.Conv2d(1000, 1000, kernel_size=3, stride=1, padding=1),
+            torch.nn.LeakyReLU(),
+            torch.nn.MaxPool2d(kernel_size=4, stride=2, padding = 1))
         self.drop_out = torch.nn.Dropout()
-        self.fc1 = torch.nn.Linear(4 * 4 * 150, 4_000)
+        self.fc1 = torch.nn.Linear(2 * 2 * 1000, 1_000)
         self.s1 = torch.nn.LeakyReLU()
-        self.fc2 = torch.nn.Linear(4_000, 600)
-        self.s2 = torch.nn.LeakyReLU()
-        self.fc3 = torch.nn.Linear(600, 10)
-        self.sm = torch.nn.Softmax(1)
+        self.fc2 = torch.nn.Linear(1_000, 10)
         
     def forward(self, x):
         out = self.layer1(x)
         out = self.layer2(out)
         out = self.layer3(out)
+        old_out = out
         out = self.layer4(out)
+        out = self.layer5(out)
+        out += old_out
+        old_out = out
+        out = self.layer6(out)
+        out = self.layer7(out)
+        out += old_out
+        out = self.layer8(out)
+        out = self.layer9(out)
         out = out.reshape(out.size(0), -1)
         out = self.drop_out(out)
         out = self.fc1(out)
         out = self.s1(out)
         out = self.fc2(out)
-        out = self.s2(out)
-        out = self.fc3(out)
-        out = self.sm(out)
         return out

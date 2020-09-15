@@ -10,13 +10,13 @@ if torch.cuda.is_available():
   device_id = "cuda:"+str(torch.cuda.device_count()-1)
 else:  
   device_id = "cpu" 
-#device_id = "cpu"  
+device_id = "cpu"  
 print("device id:",device_id)
 
 device = torch.device(device_id)
 
-model = ConvNet_7()
-model.load_state_dict(torch.load("mnist-7-classifier.model"))
+model = ConvNet_8()
+model.load_state_dict(torch.load("mnist-8-classifier.model"))
 model.to(device)
 model.eval()
 
