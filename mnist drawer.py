@@ -6,11 +6,11 @@ import time
 pygame.font.init()
 FONT = pygame.font.SysFont('Comic Sans MS', 16)
 
-if torch.cuda.is_available():  
-  device_id = "cuda:0" 
+if torch.cuda.is_available():
+  device_id = "cuda:"+str(torch.cuda.device_count()-1)
 else:  
   device_id = "cpu" 
-device_id = "cpu"  
+#device_id = "cpu"  
 print("device id:",device_id)
 
 device = torch.device(device_id)
