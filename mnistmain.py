@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
 import torch
-import torchvision
 import math
 from mlxtend.data import loadlocal_mnist
 from mnist_common import *
+from image_distorter import image_distorter
 from matplotlib import pyplot as plt
 import os
+from mnist_dataset import Mnist_Dataset
 
-batch_size = 300
-learning_rate = 1e-4
+batch_size = 2_000
+eval_interval = 1_000
+learning_rate = 1e-3
+optim_size = 50
 
-save_model = "mnist-8-classifier.model"
+save_model = "mnist-7-classifier.model"
 load_model = save_model
 #load_model = None
 
 if torch.cuda.is_available():  
-  device_id = "cuda:"+str(torch.cuda.device_count()-1)
+  device_id = "cuda:0" 
 else:  
   device_id = "cpu" 
 #device_id = "cpu"  
@@ -23,7 +26,7 @@ print("device id:",device_id)
 
 device = torch.device(device_id)
 
-model = ConvNet_8()
+model = ConvNet_7()
 print("network created")
 if load_model!=None:
     try:
@@ -34,19 +37,17 @@ if load_model!=None:
         
 model.to(device)
 
-transform = torchvision.transforms.Compose([
-    torchvision.transforms.RandomRotation(20,expand = True),
-    torchvision.transforms.RandomResizedCrop(28,scale = (0.7,1.3)),
-#    torchvision.transforms.RandomGrayscale(),
-    torchvision.transforms.ColorJitter(brightness = 0.05),
-    torchvision.transforms.ToTensor()
-])
-training_dataset = torchvision.datasets.MNIST("dataset/mnist_dataset", train=True, transform=transform, download=True)
-training_generator = torch.utils.data.DataLoader(training_dataset, batch_size = batch_size, shuffle=True)
+training_set = Mnist_Dataset("dataset/train_images", "dataset/train_labels",batch_size)
 
-testing_set = torchvision.datasets.MNIST("dataset/mnist_dataset",
-    train=False, transform=torchvision.transforms.ToTensor(), download=True)
-testing_generator = torch.utils.data.DataLoader(testing_set, batch_size = batch_size, shuffle=True)
+test_x_data, test_y_data = loadlocal_mnist(
+    images_path='t10k-images.idx3-ubyte', 
+    labels_path='t10k-labels.idx1-ubyte')
+test_x = torch.tensor(test_x_data, dtype=torch.float32)/255.0
+test_x = test_x.reshape(test_x.shape[0],1,28,28)
+test_y = torch.tensor(test_y_data, dtype=torch.int64)
+
+
+
 
 loss_fn = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -57,44 +58,52 @@ correct_amount = 0
 t=0
 loss = None
 
+batch_number = 0
+
+optim_counter = 0
+
 while True:
-    model.eval()
-    with torch.set_grad_enabled(False):
-        if loss != None:
-            print_loss = loss.item()
-            print_training_acc = (correct_amount*100.0)/len(training_dataset)
-            correct_amount = 0
-            
-        test_correct_amount = 0
-        for local_batch, local_labels in testing_generator:
-            local_batch, local_labels = local_batch.to(device), local_labels.to(device)
-            test_y_pred = model(local_batch)
-            test_y_pred_argmax = test_y_pred.argmax(1)
-            test_correct_amount += (test_y_pred_argmax.eq(local_labels)).sum()
-        print_testing_acc = (test_correct_amount*100.0)/len(testing_set)
-        if loss == None:
-            print("epoch:",t,"testing acc: {:.2f}%".format(print_testing_acc))
-        else:
-            print("epoch:",t,"loss: {:.5f}".format(print_loss),
-                "train acc: {:.2f}%".format(print_training_acc),
-                "testing acc: {:.2f}%".format(print_testing_acc))
-    if save_model!=None:
-        try:
-            os.remove(save_model)
-        except:
-            print("no model to delete")
-        torch.save(model.state_dict(), save_model)
-        
-    model.train()
-    for local_batch, local_labels in training_generator:
-        local_batch, local_labels = local_batch.to(device), local_labels.to(device)
-        y_pred = model(local_batch.to(device))
+    for local_batch, local_labels in training_set:
+        if batch_number%eval_interval==0:
+            with torch.set_grad_enabled(False):
+                model.to("cpu")
+                model.eval()
+                if loss != None:
+                    print_loss = loss.item()
+                    print_training_acc = (correct_amount*100.0)/(eval_interval*batch_size)
+                    correct_amount = 0
+                    
+                test_y_pred = model(test_x)
+                test_y_pred_argmax = test_y_pred.argmax(1)
+                test_correct_amount = (test_y_pred_argmax.eq(test_y)).sum()
+                print_testing_acc = (test_correct_amount*100.0)/len(test_y_pred_argmax)
+                if loss == None:
+                    print("epoch:",t,"testing acc: {:.2f}%".format(print_testing_acc))
+                else:
+                    print("epoch:",t,"loss: {:.5f}".format(print_loss),
+                        "train acc: {:.2f}%".format(print_training_acc),
+                        "testing acc: {:.2f}%".format(print_testing_acc))
+            if save_model!=None:
+                try:
+                    os.remove(save_model)
+                except:
+                    print("no model to delete")
+                torch.save(model.state_dict(), save_model)
+            model.to(device)
+                    
+        model.train()
+        local_batch, local_labels = torch.tensor(local_batch).to(device), torch.tensor(local_labels).to(device)
+        y_pred = model(local_batch)
         loss = loss_fn(y_pred, local_labels)
-        optimizer.zero_grad()
         loss.backward()
-        optimizer.step()
+        optim_counter += 1
+        if optim_counter >= optim_size:
+            optimizer.step()
+            optimizer.zero_grad()
+            optim_counter = 0
         y_pred_argmax = y_pred.argmax(1)
         correct_amount += (y_pred_argmax.eq(local_labels)).sum()
+        batch_number+=1
     
         
     t+=1
