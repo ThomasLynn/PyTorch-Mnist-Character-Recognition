@@ -34,17 +34,18 @@ if load_model!=None:
         
 model.to(device)
 
-"""transform = torchvision.transforms.Compose([
+transform = torchvision.transforms.Compose([
     torchvision.transforms.RandomRotation(20,expand = True),
-    torchvision.transforms.RandomResizedCrop(28,scale = (0.7,1.3)),
+    torchvision.transforms.RandomResizedCrop(28,scale = (0.5,1.3)),
 #    torchvision.transforms.RandomGrayscale(),
     torchvision.transforms.ColorJitter(brightness = 0.05),
     torchvision.transforms.ToTensor()
-])"""
+])
+"""
 transform = torchvision.transforms.Compose([
     torchvision.transforms.RandomAffine(25,(0.2,0.2),(0.5,1.4)),
     torchvision.transforms.ToTensor()
-])
+])"""
 training_dataset = torchvision.datasets.MNIST("dataset/mnist_dataset", train=True, transform=transform, download=True)
 training_generator = torch.utils.data.DataLoader(training_dataset, batch_size = batch_size, shuffle=True)
 

@@ -10,7 +10,7 @@ if torch.cuda.is_available():
   device_id = "cuda:"+str(torch.cuda.device_count()-1)
 else:  
   device_id = "cpu" 
-device_id = "cpu"  
+#device_id = "cpu"  
 print("device id:",device_id)
 
 device = torch.device(device_id)
@@ -28,6 +28,7 @@ guesses = torch.zeros(10)
 image = torch.zeros((28,28))
 
 scale = 10
+softmax = torch.nn.Softmax(1)
 
 def draw_pixel(image,x,y,set_to):
     if x < 28 and x>=0 and y <28 and y>=0:
@@ -58,7 +59,7 @@ def draw_to_image(set_to,prev_pos,pos):
         draw_pixel(image,x/scale,y/scale+2,set_to/3)
         draw_pixel(image,x/scale+2,y/scale,set_to/3)
         draw_pixel(image,x/scale-2,y/scale,set_to/3)
-    guesses[:] = model(image.reshape(1,1,28,28).to(device))
+    guesses[:] = softmax(model(image.reshape(1,1,28,28).to(device)))
     #guesses[:] = model(image.reshape(1,1,28,28))
         
 
