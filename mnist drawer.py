@@ -15,8 +15,8 @@ print("device id:",device_id)
 
 device = torch.device(device_id)
 
-model = ConvNet_8()
-model.load_state_dict(torch.load("mnist-8-classifier.model"))
+model = ConvNet_10()
+model.load_state_dict(torch.load("mnist-10-classifier.model"))
 model.to(device)
 model.eval()
 

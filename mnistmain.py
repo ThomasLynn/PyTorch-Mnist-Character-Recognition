@@ -7,10 +7,10 @@ from mnist_common import *
 from matplotlib import pyplot as plt
 import os
 
-batch_size = 500
+batch_size = 300
 learning_rate = 1e-4
 
-save_model = "mnist-8-classifier.model"
+save_model = "mnist-10-classifier.model"
 load_model = save_model
 #load_model = None
 
@@ -23,7 +23,7 @@ print("device id:",device_id)
 
 device = torch.device(device_id)
 
-model = ConvNet_8()
+model = ConvNet_10()
 print("network created")
 if load_model!=None:
     try:
@@ -34,6 +34,7 @@ if load_model!=None:
         
 model.to(device)
 
+"""
 transform = torchvision.transforms.Compose([
     torchvision.transforms.RandomRotation(20,expand = True),
     torchvision.transforms.RandomResizedCrop(28,scale = (0.5,1.3)),
@@ -45,7 +46,8 @@ transform = torchvision.transforms.Compose([
 transform = torchvision.transforms.Compose([
     torchvision.transforms.RandomAffine(25,(0.2,0.2),(0.5,1.4)),
     torchvision.transforms.ToTensor()
-])"""
+])
+
 training_dataset = torchvision.datasets.MNIST("dataset/mnist_dataset", train=True, transform=transform, download=True)
 training_generator = torch.utils.data.DataLoader(training_dataset, batch_size = batch_size, shuffle=True)
 
@@ -61,12 +63,14 @@ optimizer.zero_grad()
 correct_amount = 0
 t=0
 loss = None
+total_loss = 0
 
 while True:
     model.eval()
     with torch.set_grad_enabled(False):
         if loss != None:
-            print_loss = loss.item()
+            print_loss = total_loss / len(training_generator)
+            total_loss = 0
             print_training_acc = (correct_amount*100.0)/len(training_dataset)
             correct_amount = 0
             
@@ -95,6 +99,7 @@ while True:
         local_batch, local_labels = local_batch.to(device), local_labels.to(device)
         y_pred = model(local_batch.to(device))
         loss = loss_fn(y_pred, local_labels)
+        total_loss += loss.item()
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
