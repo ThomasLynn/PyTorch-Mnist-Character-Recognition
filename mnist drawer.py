@@ -15,23 +15,25 @@ print("device id:",device_id)
 
 device = torch.device(device_id)
 
-model = ConvNet_10()
-model.load_state_dict(torch.load("mnist-10-classifier.model"))
+image_size = 32
+scale = 10
+
+model = ConvNet_11()
+model.load_state_dict(torch.load("models/mnist-11-classifier.model"))
 model.to(device)
 model.eval()
 
-screen = pygame.display.set_mode((600, 300))
+screen = pygame.display.set_mode((image_size*scale + 200, image_size*scale+20))
 pygame.init()
 clock = pygame.time.Clock()
 
 guesses = torch.zeros(10)
-image = torch.zeros((28,28))
+image = torch.zeros((image_size,image_size))
 
-scale = 10
 softmax = torch.nn.Softmax(1)
 
 def draw_pixel(image,x,y,set_to):
-    if x < 28 and x>=0 and y <28 and y>=0:
+    if x < image_size and x>=0 and y <image_size and y>=0:
         if set_to == 0 or image[int(x)][int(y)]<set_to:
             image[int(x)][int(y)] = set_to
 
@@ -59,8 +61,8 @@ def draw_to_image(set_to,prev_pos,pos):
         draw_pixel(image,x/scale,y/scale+2,set_to/3)
         draw_pixel(image,x/scale+2,y/scale,set_to/3)
         draw_pixel(image,x/scale-2,y/scale,set_to/3)
-    guesses[:] = softmax(model(image.reshape(1,1,28,28).to(device)))
-    #guesses[:] = model(image.reshape(1,1,28,28))
+    guesses[:] = softmax(model(image.reshape(1,1,image_size,image_size).to(device)))
+    #guesses[:] = model(image.reshape(1,1,image_size,image_size))
         
 
 running = True
@@ -83,8 +85,8 @@ while running:
     
     key = pygame.key.get_pressed()
     if key[pygame.K_SPACE]:
-        for i in range(28):
-            image = torch.zeros((28,28))
+        for i in range(image_size):
+            image = torch.zeros((image_size,image_size))
             guesses = torch.zeros(10)
     
     screen.fill([255, 255, 255])
@@ -96,10 +98,10 @@ while running:
                 (i*scale,j*scale,scale,scale))
     for i in range(guesses.shape[0]):
         text_surface = FONT.render(str(i)+': {:.1f}%'.format(guesses[i]*100), False, (0, 0, 0))
-        screen.blit(text_surface,((300,30+i*18)))
+        screen.blit(text_surface,((image_size*scale + 30,30+i*18)))
             
     text_surface = FONT.render("guess: "+str(int(torch.argmax(guesses))), False, (0, 0, 0))
-    screen.blit(text_surface,((300,10)))
+    screen.blit(text_surface,((image_size*scale + 30,10)))
     
     pygame.display.update()
     clock.tick(30)

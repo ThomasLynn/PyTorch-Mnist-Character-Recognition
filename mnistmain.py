@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 import os
 
 batch_size = 1000
-learning_rate = 1e-4
+learning_rate = 4e-4
 
 save_model = "models/mnist-11-classifier.model"
 load_model = save_model
@@ -34,26 +34,30 @@ if load_model!=None:
         
 model.to(device)
 
-"""
+
 transform = torchvision.transforms.Compose([
     torchvision.transforms.RandomRotation(20,expand = True),
-    torchvision.transforms.RandomResizedCrop(28,scale = (0.5,1.3)),
-#    torchvision.transforms.RandomGrayscale(),
+    torchvision.transforms.RandomPerspective(),
+    torchvision.transforms.RandomResizedCrop(32,scale = (0.2,1.3)),
     torchvision.transforms.ColorJitter(brightness = 0.05),
+    torchvision.transforms.ToTensor()
+])
+transform_test = torchvision.transforms.Compose([
+    torchvision.transforms.Pad(2),
     torchvision.transforms.ToTensor()
 ])
 """
 transform = torchvision.transforms.Compose([
     torchvision.transforms.RandomAffine(25,(0.2,0.2),(0.5,1.4)),
     torchvision.transforms.ToTensor()
-])
+])"""
 
 training_dataset = torchvision.datasets.MNIST("dataset/mnist_dataset", train=True, transform=transform, download=True)
 training_generator = torch.utils.data.DataLoader(training_dataset, batch_size = batch_size, shuffle=True)
 
 testing_set = torchvision.datasets.MNIST("dataset/mnist_dataset",
-    train=False, transform=torchvision.transforms.ToTensor(), download=True)
-testing_generator = torch.utils.data.DataLoader(testing_set, batch_size = batch_size, shuffle=True)
+    train=False, transform=transform_test, download=True)
+testing_generator = torch.utils.data.DataLoader(testing_set, batch_size = batch_size, shuffle=False)
 
 loss_fn = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
