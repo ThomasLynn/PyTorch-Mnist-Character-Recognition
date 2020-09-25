@@ -7,10 +7,10 @@ from mnist_common import *
 from matplotlib import pyplot as plt
 import os
 
-batch_size = 300
+batch_size = 1000
 learning_rate = 1e-4
 
-save_model = "mnist-10-classifier.model"
+save_model = "models/mnist-11-classifier.model"
 load_model = save_model
 #load_model = None
 
@@ -23,7 +23,7 @@ print("device id:",device_id)
 
 device = torch.device(device_id)
 
-model = ConvNet_10()
+model = ConvNet_11()
 print("network created")
 if load_model!=None:
     try:

@@ -445,3 +445,34 @@ class ConvNet_10(torch.nn.Module):
         #out = self.s1(out)
         #out = self.fc2(out)
         return out
+        
+class ConvNet_11(torch.nn.Module):
+    def __init__(self):
+        super(ConvNet_11, self).__init__()
+        self.layer1 = torch.nn.Sequential(
+            torch.nn.Conv2d(1, 100, kernel_size=7, stride=1, padding=3),
+            torch.nn.LeakyReLU(),
+            torch.nn.MaxPool2d(kernel_size=2, stride=2))
+        self.layer2 = torch.nn.Sequential(
+            torch.nn.Conv2d(100, 200, kernel_size=7, stride=1, padding=3),
+            torch.nn.LeakyReLU(),
+            torch.nn.MaxPool2d(kernel_size=2, stride=2))
+        self.layer3 = torch.nn.Sequential(
+            torch.nn.Conv2d(200, 400, kernel_size=5, stride=1, padding=2),
+            torch.nn.LeakyReLU(),
+            torch.nn.MaxPool2d(kernel_size=2, stride=2, padding = 1))
+        self.layer4 = torch.nn.Sequential(
+            torch.nn.Conv2d(400, 800, kernel_size=5, stride=1, padding=2),
+            torch.nn.LeakyReLU())
+        self.drop_out = torch.nn.Dropout()
+        self.fc1 = torch.nn.Linear(4 * 4 * 800, 10)
+        
+    def forward(self, x):
+        out = self.layer1(x)
+        out = self.layer2(out)
+        out = self.layer3(out)
+        out = self.layer4(out)
+        out = out.reshape(out.size(0), -1)
+        out = self.drop_out(out)
+        out = self.fc1(out)
+        return out
