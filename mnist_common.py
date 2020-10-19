@@ -1,21 +1,95 @@
 import torch
 
-class Perceptron_1(torch.nn.Module):
+class Forward_1(torch.nn.Module):
     def __init__(self):
-        super(Perceptron_1, self).__init__()
-        self.fc1 = torch.nn.Linear(28 * 28, 300)
-        self.s1 = torch.nn.Sigmoid()
-        self.fc2 = torch.nn.Linear(300, 40)
-        self.s2 = torch.nn.Sigmoid()
-        self.fc3 = torch.nn.Linear(40, 10)
+        super(Forward_1, self).__init__()
+        self.layer = torch.nn.Sequential(
+            torch.nn.Linear(28 * 28, 5_000),
+            torch.nn.LeakyReLU(),
+            torch.nn.Linear(5_000, 3_000),
+            torch.nn.LeakyReLU(),
+            torch.nn.Linear(3_000, 10))
         
     def forward(self, x):
-        out = self.fc1(out)
-        out = self.s1(out)
-        out = self.fc2(out)
-        out = self.s2(out)
-        out = self.fc2(out)
+        out = x.reshape(x.size(0), -1)
+        #print(out.shape)
+        return self.layer(out)
+
+class Forward_2(torch.nn.Module):
+    def __init__(self):
+        super(Forward_2, self).__init__()
+        self.layer = torch.nn.Sequential(
+            torch.nn.Conv2d(1, 200, kernel_size=3, stride=1, padding=1),
+            torch.nn.Dropout2d(p = 0.1),
+            torch.nn.LeakyReLU(),
+            torch.nn.MaxPool2d(kernel_size=4, stride=2, padding = 1),
+            torch.nn.Conv2d(200, 400, kernel_size=3, stride=1, padding=1),
+            torch.nn.Dropout2d(p = 0.1),
+            torch.nn.LeakyReLU(),
+            torch.nn.MaxPool2d(kernel_size=4, stride=2, padding = 1),
+            torch.nn.Conv2d(400, 800, kernel_size=3, stride=1, padding=1),
+            torch.nn.Dropout2d(p = 0.1),
+            torch.nn.LeakyReLU(),
+            torch.nn.MaxPool2d(kernel_size=4, stride=2, padding = 2),
+            torch.nn.Conv2d(800, 1600, kernel_size=3, stride=1, padding=1),
+            torch.nn.Dropout2d(p = 0.1),
+            torch.nn.LeakyReLU(),
+            torch.nn.Flatten(),
+            torch.nn.Linear(4 * 4 * 1600, 2_000),
+            torch.nn.LeakyReLU(),
+            torch.nn.Linear(2_000, 1_000),
+            torch.nn.LeakyReLU(),
+            torch.nn.Linear(1_000, 10))
+        #self.layer2 = torch.nn.Sequential())
+        
+    def forward(self, x):
+        #print(x.shape)
+        out = self.layer(x)
+        #print(out.shape)
+        #out = torch.nn.functional.dropout2d(out, p = 0.1)
+        #out = out.reshape(out.size(0), -1)
+        #print(out.shape)
+        #out = self.layer2(out)
+        #print(out.shape)
         return out
+
+class Forward_3(torch.nn.Module):
+    def __init__(self):
+        super(Forward_3, self).__init__()
+        self.layer = torch.nn.Sequential(
+            torch.nn.Conv2d(1, 200, kernel_size=3, stride=1, padding=1),
+            torch.nn.Dropout2d(p = 0.1),
+            torch.nn.LeakyReLU(),
+            torch.nn.MaxPool2d(kernel_size=4, stride=2, padding = 1),
+            torch.nn.Conv2d(200, 400, kernel_size=3, stride=1, padding=1),
+            torch.nn.Dropout2d(p = 0.1),
+            torch.nn.LeakyReLU(),
+            torch.nn.MaxPool2d(kernel_size=4, stride=2, padding = 1),
+            torch.nn.Conv2d(400, 800, kernel_size=3, stride=1, padding=1),
+            torch.nn.Dropout2d(p = 0.1),
+            torch.nn.LeakyReLU(),
+            torch.nn.MaxPool2d(kernel_size=4, stride=2, padding = 2),
+            torch.nn.Conv2d(800, 1600, kernel_size=3, stride=1, padding=1),
+            torch.nn.Dropout2d(p = 0.1),
+            torch.nn.LeakyReLU())
+        self.layer2 = torch.nn.Transformer(d_model = 1600)
+        self.layer3 = torch.nn.Sequential(
+            torch.nn.Flatten(),
+            torch.nn.Linear(4*4*1600,10))
+        self.poop = torch.rand((1500,16,1600))
+        
+    def forward(self, x):
+        #print(x.shape)
+        x = self.layer(x)
+        x = x.reshape(x.size(0), 16, 1600)
+        #print(out.shape)
+        #out = torch.nn.functional.dropout2d(out, p = 0.1)
+        print(x.shape,self.poop)
+        
+        x = self.layer2(self.poop,x)
+        x = self.layer3(x)
+        #print(out.shape)
+        return x
 
 class ConvNet_1(torch.nn.Module):
     def __init__(self):
@@ -476,3 +550,43 @@ class ConvNet_11(torch.nn.Module):
         out = out.reshape(out.size(0), -1)
         out = self.fc1(out)
         return out
+
+class ConvNet_12(torch.nn.Module):
+    def __init__(self):
+        super(ConvNet_12, self).__init__()
+        size = 100
+        self.layerstart = torch.nn.Conv2d(1, size, kernel_size=1)
+        self.layers = []
+        for i in range(20):
+            self.layers.append(torch.nn.Sequential(
+                torch.nn.Conv2d(size, size, kernel_size = 3, padding = 1),
+                torch.nn.Dropout2d(p = 0.1),
+                torch.nn.LeakyReLU()))
+        self.layersmod = torch.nn.ModuleList(self.layers)
+        self.layerpool = torch.nn.Sequential(
+            torch.nn.Conv2d(size, size * 2, kernel_size = 1),
+            torch.nn.MaxPool2d(kernel_size = 2, stride = 2),
+            torch.nn.LeakyReLU())
+            
+        self.layers2 = []
+        for i in range(20):
+            self.layers2.append(torch.nn.Sequential(
+                torch.nn.Conv2d(size * 2, size * 2, kernel_size = 3, padding = 1),
+                torch.nn.Dropout2d(p = 0.1),
+                torch.nn.LeakyReLU()))
+        self.layers2mod = torch.nn.ModuleList(self.layers2)
+        self.layerend = torch.nn.Sequential(
+            torch.nn.Flatten(),
+            torch.nn.Linear(14*14*size*2,10))
+        
+    def forward(self, x):
+        x = self.layerstart(x)
+        for w in self.layers:
+            old = x
+            x = old + w(x)
+        x = self.layerpool(x)
+        for w in self.layers2:
+            old = x
+            x = old + w(x)
+        x = self.layerend(x)
+        return x

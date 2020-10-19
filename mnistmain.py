@@ -7,10 +7,11 @@ from mnist_common import *
 from matplotlib import pyplot as plt
 import os
 
-batch_size = 1000
-learning_rate = 4e-4
+batch_size = 200
+learning_rate = 1e-4
 
-save_model = "models/mnist-11-classifier.model"
+#save_model = "models/mnist-forward-2-classifier.model"
+save_model = None
 load_model = save_model
 #load_model = None
 
@@ -23,7 +24,7 @@ print("device id:",device_id)
 
 device = torch.device(device_id)
 
-model = ConvNet_11()
+model = ConvNet_12()
 print("network created")
 if load_model!=None:
     try:
@@ -35,7 +36,7 @@ if load_model!=None:
 model.to(device)
 
 
-transform = torchvision.transforms.Compose([
+"""transform = torchvision.transforms.Compose([
     torchvision.transforms.RandomRotation(20,expand = True),
     torchvision.transforms.RandomPerspective(),
     torchvision.transforms.RandomResizedCrop(32,scale = (0.2,1.3)),
@@ -45,12 +46,13 @@ transform = torchvision.transforms.Compose([
 transform_test = torchvision.transforms.Compose([
     torchvision.transforms.Pad(2),
     torchvision.transforms.ToTensor()
-])
-"""
-transform = torchvision.transforms.Compose([
-    torchvision.transforms.RandomAffine(25,(0.2,0.2),(0.5,1.4)),
-    torchvision.transforms.ToTensor()
 ])"""
+
+transform = torchvision.transforms.Compose([
+    #torchvision.transforms.RandomAffine(5,(0.05,0.05),(0.9,1.05)),
+    torchvision.transforms.ToTensor()
+])
+transform_test = torchvision.transforms.ToTensor()
 
 training_dataset = torchvision.datasets.MNIST("dataset/mnist_dataset", train=True, transform=transform, download=True)
 training_generator = torch.utils.data.DataLoader(training_dataset, batch_size = batch_size, shuffle=True)
