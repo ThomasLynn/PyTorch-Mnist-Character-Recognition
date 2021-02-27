@@ -3,8 +3,6 @@ import torch
 from mnist_common import *
 import time
 
-pygame.font.init()
-FONT = pygame.font.SysFont('Comic Sans MS', 16)
 
 if torch.cuda.is_available():
   device_id = "cuda:"+str(torch.cuda.device_count()-1)
@@ -16,14 +14,19 @@ print("device id:",device_id)
 device = torch.device(device_id)
 
 image_size = 32
-scale = 10
+scale = 40
+text_size = 90
+text_split = text_size + 10
 
-model = ConvNet_11()
-model.load_state_dict(torch.load("models/mnist-11-classifier.model"))
+pygame.font.init()
+FONT = pygame.font.SysFont('Comic Sans MS', text_size)
+
+model = ConvNet_13()
+model.load_state_dict(torch.load("mnist-convnet13-classifier.model"))
 model.to(device)
 model.eval()
 
-screen = pygame.display.set_mode((image_size*scale + 200, image_size*scale+20))
+screen = pygame.display.set_mode((image_size*scale + 500, image_size*scale))
 pygame.init()
 clock = pygame.time.Clock()
 
@@ -98,7 +101,7 @@ while running:
                 (i*scale,j*scale,scale,scale))
     for i in range(guesses.shape[0]):
         text_surface = FONT.render(str(i)+': {:.1f}%'.format(guesses[i]*100), False, (0, 0, 0))
-        screen.blit(text_surface,((image_size*scale + 30,30+i*18)))
+        screen.blit(text_surface,((image_size*scale + 30,14+(i+1)*text_split)))
             
     text_surface = FONT.render("guess: "+str(int(torch.argmax(guesses))), False, (0, 0, 0))
     screen.blit(text_surface,((image_size*scale + 30,10)))

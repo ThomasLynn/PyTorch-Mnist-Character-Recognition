@@ -7,11 +7,12 @@ from mnist_common import *
 from matplotlib import pyplot as plt
 import os
 
-batch_size = 200
-learning_rate = 1e-4
+# if cuda runs out of memory, reduce batch_size or use a smaller model in mnist_common.py
+batch_size = 400
+learning_rate = 4e-4
 
-#save_model = "models/mnist-forward-2-classifier.model"
-save_model = None
+save_model = "mnist-convnet13-classifier.model"
+#save_model = None
 load_model = save_model
 #load_model = None
 
@@ -24,7 +25,7 @@ print("device id:",device_id)
 
 device = torch.device(device_id)
 
-model = ConvNet_12()
+model = ConvNet_13()
 print("network created")
 if load_model!=None:
     try:
@@ -36,23 +37,21 @@ if load_model!=None:
 model.to(device)
 
 
-"""transform = torchvision.transforms.Compose([
-    torchvision.transforms.RandomRotation(20,expand = True),
-    torchvision.transforms.RandomPerspective(),
-    torchvision.transforms.RandomResizedCrop(32,scale = (0.2,1.3)),
-    torchvision.transforms.ColorJitter(brightness = 0.05),
+transform = torchvision.transforms.Compose([
+    torchvision.transforms.RandomRotation(10,expand = True),
+    torchvision.transforms.RandomResizedCrop(32,scale = (0.8,1.1)),
     torchvision.transforms.ToTensor()
 ])
 transform_test = torchvision.transforms.Compose([
     torchvision.transforms.Pad(2),
     torchvision.transforms.ToTensor()
-])"""
+])
 
-transform = torchvision.transforms.Compose([
+"""transform = torchvision.transforms.Compose([
     #torchvision.transforms.RandomAffine(5,(0.05,0.05),(0.9,1.05)),
     torchvision.transforms.ToTensor()
 ])
-transform_test = torchvision.transforms.ToTensor()
+transform_test = torchvision.transforms.ToTensor()"""
 
 training_dataset = torchvision.datasets.MNIST("dataset/mnist_dataset", train=True, transform=transform, download=True)
 training_generator = torch.utils.data.DataLoader(training_dataset, batch_size = batch_size, shuffle=True)
@@ -90,7 +89,11 @@ while True:
         if loss == None:
             print("epoch:",t,"testing acc: {:.2f}%".format(print_testing_acc))
         else:
-            print("epoch:",t,"loss: {:.5f}".format(print_loss),
+            # training acc will likely be lower than testing acc at the start
+            # this is because training acc is calculated during the epoch
+            # and testing acc is calculated after the epoch, with the better trained network.
+            # training acc will also be lower if random transforms are applied to the training dataset
+            print("epoch:",t,"loss: {:.7f}".format(print_loss),
                 "train acc: {:.2f}%".format(print_training_acc),
                 "testing acc: {:.2f}%".format(print_testing_acc))
     if save_model!=None:

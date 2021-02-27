@@ -555,29 +555,48 @@ class ConvNet_12(torch.nn.Module):
     def __init__(self):
         super(ConvNet_12, self).__init__()
         size = 100
+        sizes = [size , int(size * 1.5), int(size * 1.5 ** 2)]
+        print("sizes",sizes)
         self.layerstart = torch.nn.Conv2d(1, size, kernel_size=1)
         self.layers = []
-        for i in range(20):
+        for i in range(10):
             self.layers.append(torch.nn.Sequential(
-                torch.nn.Conv2d(size, size, kernel_size = 3, padding = 1),
+                torch.nn.Conv2d(sizes[0], sizes[0] // 2, kernel_size = 1),
+                torch.nn.Conv2d(sizes[0] // 2, sizes[0], kernel_size = 3, padding = 1),
                 torch.nn.Dropout2d(p = 0.1),
                 torch.nn.LeakyReLU()))
         self.layersmod = torch.nn.ModuleList(self.layers)
+        
         self.layerpool = torch.nn.Sequential(
-            torch.nn.Conv2d(size, size * 2, kernel_size = 1),
+            torch.nn.Conv2d(sizes[0], sizes[1], kernel_size = 1),
             torch.nn.MaxPool2d(kernel_size = 2, stride = 2),
             torch.nn.LeakyReLU())
             
         self.layers2 = []
-        for i in range(20):
+        for i in range(10):
             self.layers2.append(torch.nn.Sequential(
-                torch.nn.Conv2d(size * 2, size * 2, kernel_size = 3, padding = 1),
+                torch.nn.Conv2d(sizes[1], sizes[1] // 2, kernel_size = 1),
+                torch.nn.Conv2d(sizes[1] // 2, sizes[1], kernel_size = 3, padding = 1),
                 torch.nn.Dropout2d(p = 0.1),
                 torch.nn.LeakyReLU()))
         self.layers2mod = torch.nn.ModuleList(self.layers2)
+        
+        self.layerpool2 = torch.nn.Sequential(
+            torch.nn.Conv2d(sizes[1], sizes[2], kernel_size = 1),
+            torch.nn.MaxPool2d(kernel_size = 2, stride = 2),
+            torch.nn.LeakyReLU())
+            
+        self.layers3 = []
+        for i in range(10):
+            self.layers3.append(torch.nn.Sequential(
+                torch.nn.Conv2d(sizes[2], sizes[2] // 2, kernel_size = 1),
+                torch.nn.Conv2d(sizes[2] // 2, sizes[2], kernel_size = 3, padding = 1),
+                torch.nn.Dropout2d(p = 0.1),
+                torch.nn.LeakyReLU()))
+        self.layers3mod = torch.nn.ModuleList(self.layers3)
         self.layerend = torch.nn.Sequential(
             torch.nn.Flatten(),
-            torch.nn.Linear(14*14*size*2,10))
+            torch.nn.Linear(7*7*sizes[2],10))
         
     def forward(self, x):
         x = self.layerstart(x)
@@ -588,5 +607,45 @@ class ConvNet_12(torch.nn.Module):
         for w in self.layers2:
             old = x
             x = old + w(x)
+        x = self.layerpool2(x)
+        for w in self.layers3:
+            old = x
+            x = old + w(x)
         x = self.layerend(x)
         return x
+        
+class ConvNet_13(torch.nn.Module):
+    def __init__(self):
+        super(ConvNet_13, self).__init__()
+        #32x32
+        sizes = [1,200,400,600,800,1000]
+        self.layers = torch.nn.Sequential(
+            torch.nn.Conv2d(sizes[0], sizes[1], kernel_size=3, stride=1, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(kernel_size=2, stride=2),
+            #16x16
+            torch.nn.Conv2d(sizes[1], sizes[2], kernel_size=3, stride=1, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(kernel_size=2, stride=2),
+            #8x8
+            torch.nn.Conv2d(sizes[2], sizes[3], kernel_size=3, stride=1, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(kernel_size=2, stride=2),
+            #4x4
+            torch.nn.Conv2d(sizes[3], sizes[4], kernel_size=3, stride=1, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(kernel_size=2, stride=2),
+            #2x2
+            torch.nn.Conv2d(sizes[4], sizes[5], kernel_size=3, stride=1, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.Conv2d(sizes[5], sizes[5], kernel_size=3, stride=1, padding=1),
+            torch.nn.ReLU(),
+            torch.nn.MaxPool2d(kernel_size=2, stride=2),
+            #1x1
+            torch.nn.Dropout2d(),
+            torch.nn.Flatten(),
+            torch.nn.Linear(sizes[5], 10))
+        
+    def forward(self, x):
+        out = self.layers(x)
+        return out
