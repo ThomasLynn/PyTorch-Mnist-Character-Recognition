@@ -3,7 +3,7 @@ import torch
 import torchvision
 import math
 from mlxtend.data import loadlocal_mnist
-from mnist_common import *
+from networks import *
 from matplotlib import pyplot as plt
 import os
 

@@ -1,6 +1,6 @@
 import pygame
 import torch
-from mnist_common import *
+from networks import *
 import time
 
 
@@ -15,11 +15,11 @@ device = torch.device(device_id)
 
 image_size = 32
 scale = 40
-text_size = 90
-text_split = text_size + 10
+text_size = 110
+text_split = text_size - 10
 
 pygame.font.init()
-FONT = pygame.font.SysFont('Comic Sans MS', text_size)
+FONT = pygame.font.SysFont('sans-serif', text_size)
 
 model = ConvNet_13()
 model.load_state_dict(torch.load("mnist-convnet13-classifier.model"))
