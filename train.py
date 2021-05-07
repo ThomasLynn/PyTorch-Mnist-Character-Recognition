@@ -3,18 +3,27 @@ import torch
 import torchvision
 import math
 from mlxtend.data import loadlocal_mnist
-from networks import *
+import networks
 from matplotlib import pyplot as plt
 import os
+import argparse
 
-# if cuda runs out of memory, reduce batch_size or use a smaller model in mnist_common.py
-batch_size = 400
-learning_rate = 4e-4
+parser = argparse.ArgumentParser()
+parser.add_argument("model", help="The class name of the model to load (classes from networks.py)")
+parser.add_argument("-f", "-modelfile", default="", help="specify a filename for the model to save to")
+parser.add_argument("-d", "-deviceid", default="", help="specify a device to use, eg: cpu or cuda:0")
+parser.add_argument("-bs", "--batchsize", default="400", help="batch size to train with. reduce this if you can't fit everything onto the GPU")
+parser.add_argument("-lr", "--learningrate", default="4e-4", help="batch size to train with")
+parser.add_argument("-r", "--resume", action='store_false', help="the network should resume training instead starting new")
 
-save_model = "mnist-convnet13-classifier.model"
-#save_model = None
-load_model = save_model
-#load_model = None
+args = parser.parse_args()
+print("args",args)
+
+# if cuda runs out of memory, reduce batch_size or use a smaller model in networks.py
+batch_size = int(args.batchsize)
+learning_rate = float(args.learningrate)
+
+save_model = "models/"+args.model+".model"
 
 if torch.cuda.is_available():  
   device_id = "cuda:"+str(torch.cuda.device_count()-1)
@@ -25,15 +34,15 @@ print("device id:",device_id)
 
 device = torch.device(device_id)
 
-model = ConvNet_13()
+model_class = getattr(networks, args.model)
+model = model_class()
 print("network created")
-if load_model!=None:
+if args.resume:
     try:
-        model.load_state_dict(torch.load(load_model))
+        model.load_state_dict(torch.load(save_model))
         print("loaded model from file")
     except:
         print("failed to load model. using new model")
-        
 model.to(device)
 
 
