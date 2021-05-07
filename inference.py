@@ -2,13 +2,21 @@ import pygame
 import torch
 from networks import *
 import time
+import argparse
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-deviceid", default="", help="specify a device to use, eg: cpu or cuda:0")
 
-if torch.cuda.is_available():
-  device_id = "cuda:"+str(torch.cuda.device_count()-1)
-else:  
-  device_id = "cpu" 
-#device_id = "cpu"  
+args = parser.parse_args()
+print("args",args)
+
+if args.deviceid=="":
+    if torch.cuda.is_available():
+      device_id = "cuda"
+    else:  
+      device_id = "cpu"
+else:
+    device_id = args.deviceid
 print("device id:",device_id)
 
 device = torch.device(device_id)
