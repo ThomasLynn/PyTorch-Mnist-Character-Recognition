@@ -1,11 +1,14 @@
 import pygame
 import torch
-from networks import *
+import networks
 import time
 import argparse
 
 parser = argparse.ArgumentParser()
+parser.add_argument("model", help="The class name of the model to load")
+parser.add_argument("-modelfile", default="", help="the filename of the class to load (if it has been changed)")
 parser.add_argument("-deviceid", default="", help="specify a device to use, eg: cpu or cuda:0")
+parser.add_argument("-scale", default="40", help="scale multiplier for the image (size of each pixel)")
 
 args = parser.parse_args()
 print("args",args)
@@ -22,15 +25,20 @@ print("device id:",device_id)
 device = torch.device(device_id)
 
 image_size = 32
-scale = 40
-text_size = 110
-text_split = text_size - 10
+scale = int(args.scale)
+text_size = int((image_size * scale)/11)
 
 pygame.font.init()
 FONT = pygame.font.SysFont('sans-serif', text_size)
 
-model = ConvNet_13()
-model.load_state_dict(torch.load("mnist-convnet13-classifier.model"))
+text_split = FONT.get_height()
+
+model_class = getattr(networks, args.model)
+model = model_class()
+if args.modelfile=="":
+    model.load_state_dict(torch.load("models/"+args.model+".model"))
+else:
+    model.load_state_dict(torch.load("models/"+args.modelfile+".model"))
 model.to(device)
 model.eval()
 
@@ -108,7 +116,7 @@ while running:
             pygame.draw.rect(screen,(val,val,val),
                 (i*scale,j*scale,scale,scale))
     for i in range(guesses.shape[0]):
-        text_surface = FONT.render(str(i)+': {:.1f}%'.format(guesses[i]*100), False, (0, 0, 0))
+        text_surface = FONT.render(str(i)+': {:.1f}%'.format(guesses[i]*100), False, (0, guesses[i]*255, 0))
         screen.blit(text_surface,((image_size*scale + 30,14+(i+1)*text_split)))
             
     text_surface = FONT.render("guess: "+str(int(torch.argmax(guesses))), False, (0, 0, 0))

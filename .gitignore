@@ -12,4 +12,3 @@ dataset/mnist_dataset/MNIST/raw/t10k-images-idx3-ubyte
 dataset/mnist_dataset/MNIST/raw/t10k-labels-idx1-ubyte
 dataset/mnist_dataset/MNIST/raw/train-images-idx3-ubyte
 dataset/mnist_dataset/MNIST/raw/train-labels-idx1-ubyte
-models/*
