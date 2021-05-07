@@ -6,9 +6,9 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("model", help="The class name of the model to load (classes from networks.py)")
-parser.add_argument("-modelfile", default="", help="the filename of the class to load (if it has been changed)")
-parser.add_argument("-deviceid", default="", help="specify a device to use, eg: cpu or cuda:0")
-parser.add_argument("-scale", default="30", help="scale multiplier for the image (size of each pixel)")
+parser.add_argument("-f","--modelfile", default="", help="the filename of the class to load (if it has been changed)")
+parser.add_argument("-d","--deviceid", default="", help="specify a device to use, eg: cpu or cuda:0")
+parser.add_argument("-s","--scale", default="30", help="scale multiplier for the image (size of each pixel)")
 
 args = parser.parse_args()
 print("args",args)

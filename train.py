@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import torch
 import torchvision
 import math
@@ -10,11 +9,11 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument("model", help="The class name of the model to load (classes from networks.py)")
-parser.add_argument("-f", "-modelfile", default="", help="specify a filename for the model to save to")
-parser.add_argument("-d", "-deviceid", default="", help="specify a device to use, eg: cpu or cuda:0")
+parser.add_argument("-f", "--modelfile", default="", help="specify a filename for the model to save to")
+parser.add_argument("-d", "--deviceid", default="", help="specify a device to use, eg: cpu or cuda:0")
 parser.add_argument("-bs", "--batchsize", default="400", help="batch size to train with. reduce this if you can't fit everything onto the GPU")
 parser.add_argument("-lr", "--learningrate", default="4e-4", help="batch size to train with")
-parser.add_argument("-r", "--resume", action='store_false', help="the network should resume training instead starting new")
+parser.add_argument("-r", "--resume", action='store_true', help="the network should resume training instead starting new")
 
 args = parser.parse_args()
 print("args",args)
@@ -25,11 +24,13 @@ learning_rate = float(args.learningrate)
 
 save_model = "models/"+args.model+".model"
 
-if torch.cuda.is_available():  
-  device_id = "cuda:"+str(torch.cuda.device_count()-1)
-else:  
-  device_id = "cpu" 
-#device_id = "cpu"  
+if args.deviceid=="":
+    if torch.cuda.is_available():
+      device_id = "cuda"
+    else:  
+      device_id = "cpu"
+else:
+    device_id = args.deviceid
 print("device id:",device_id)
 
 device = torch.device(device_id)
@@ -47,8 +48,8 @@ model.to(device)
 
 
 transform = torchvision.transforms.Compose([
-    torchvision.transforms.RandomRotation(10,expand = True),
-    torchvision.transforms.RandomResizedCrop(32,scale = (0.8,1.1)),
+    torchvision.transforms.RandomRotation(10, expand = True),
+    torchvision.transforms.RandomResizedCrop(32, scale = (0.8,1.2)),
     torchvision.transforms.ToTensor()
 ])
 transform_test = torchvision.transforms.Compose([
